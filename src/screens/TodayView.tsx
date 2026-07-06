@@ -1,102 +1,200 @@
-import { Kicker, ExecPanel, ModeratorPanel } from '../components/primitives'
+import { Kicker, SectionHeader, ExecPanel, ModeratorPanel, BulletList } from '../components/primitives'
 import { PRODUCT } from '../constants'
 import type { ViewId } from '../types'
+import {
+  TODAY_OPENING,
+  ALIGNMENT_SUMMARY,
+  JUDGMENT_MEETINGS,
+  MY_ROLE_TODAY,
+  ORG_IMPACT,
+  AGENT_COVERAGE_TODAY,
+  DECISION_QUEUE,
+  FRICTION_SIGNALS,
+  TODAY_MODERATOR,
+} from '../data/mock'
+
+/** Where each recommended action takes the employee. Low-risk navigation only. */
+const ACTION_TARGET: Record<string, ViewId> = {
+  'Attend live': 'decision-room',
+  'Attend with prep': 'decision-room',
+  'Send org agent': 'agents',
+  'Convert or decline': 'calendar',
+  'Add decision owner': 'build',
+}
 
 export function TodayView({ navigate }: { navigate: (v: ViewId) => void }) {
   return (
     <div className="canvas">
-      <div className="canvas-split">
+      <header className="page-head hero">
+        <Kicker>{PRODUCT.workspace}</Kicker>
+        <h1 className="display">Executive Alignment Room</h1>
+        <p className="thesis">
+          Today&rsquo;s operating brief for live time, decisions, agent coverage, and
+          organizational friction.
+        </p>
+      </header>
+
+      {/* Opening brief — one authoritative line */}
+      <div
+        className="serif"
+        style={{
+          fontSize: 20,
+          lineHeight: 1.4,
+          padding: '20px 0',
+          borderTop: '1px solid var(--line-ink)',
+          borderBottom: '1px solid var(--line-ink)',
+          marginBottom: 40,
+          maxWidth: '68ch',
+        }}
+      >
+        {TODAY_OPENING}
+      </div>
+
+      {/* 1. Today's Alignment Summary — restrained briefing signals */}
+      <div className="eyebrow" style={{ marginBottom: 12 }}>
+        Today&rsquo;s Alignment Summary
+      </div>
+      <div
+        className="panel-row"
+        style={{ gridTemplateColumns: `repeat(${ALIGNMENT_SUMMARY.length}, 1fr)` }}
+      >
+        {ALIGNMENT_SUMMARY.map((s) => (
+          <ExecPanel
+            key={s.label}
+            label={s.label}
+            figure={s.figure}
+            unit={s.unit}
+            foot={s.foot}
+          />
+        ))}
+      </div>
+
+      <div className="canvas-split" style={{ marginTop: 8 }}>
         <div>
-          <header className="page-head hero">
-            <Kicker>{PRODUCT.workspace}</Kicker>
-            <h1 className="display">Govern live time before it becomes organizational drag.</h1>
-            <p className="thesis">
-              Build meetings as decision objects, assign role-based attendance, and capture the
-              operating signals that reveal how work actually moves.
+          {/* 2. Meetings That Need Judgment — the core section */}
+          <SectionHeader title="Meetings That Need Judgment" aside="Where your attention decides the outcome" />
+          <table className="exec-table">
+            <thead>
+              <tr>
+                <th style={{ width: '26%' }}>Meeting</th>
+                <th>System judgment</th>
+                <th>Your role</th>
+                <th>Recommended action</th>
+                <th>Time impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              {JUDGMENT_MEETINGS.map((m) => {
+                const target = ACTION_TARGET[m.action]
+                return (
+                  <tr key={m.title}>
+                    <td className="strong">{m.title}</td>
+                    <td>
+                      <span className="status">{m.judgment}</span>
+                    </td>
+                    <td className="muted">{m.role}</td>
+                    <td>
+                      {target ? (
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          onClick={() => navigate(target)}
+                        >
+                          {m.action}
+                        </button>
+                      ) : (
+                        m.action
+                      )}
+                    </td>
+                    <td className="muted">{m.impact}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+
+          {/* 3. My Role Today */}
+          <SectionHeader title="My Role Today" aside="Why you matter today" />
+          <table className="exec-table">
+            <tbody>
+              {MY_ROLE_TODAY.map((r) => (
+                <tr key={r.role + r.where}>
+                  <td className="strong" style={{ width: '34%' }}>
+                    {r.role}
+                  </td>
+                  <td className="muted">{r.where}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* 4. Org Impact Panel — org-aware */}
+          <SectionHeader title="Revenue Operations Impact" aside="Your organization" />
+          <div className="work-card" style={{ borderColor: 'var(--line-ink)' }}>
+            <BulletList items={ORG_IMPACT.signals} />
+            <p className="faint" style={{ fontSize: 12.5, marginTop: 16, lineHeight: 1.5 }}>
+              Employees in {ORG_IMPACT.otherOrgs.join(', ')} see their organization&rsquo;s own
+              impact in this panel.
             </p>
-            <div className="row" style={{ marginTop: 24, gap: 10 }}>
-              <button className="btn btn-solid" onClick={() => navigate('build')}>
-                {PRODUCT.primaryAction}
-              </button>
-              <button className="btn btn-ghost" onClick={() => navigate('calendar')}>
-                Open Smart Calendar
-              </button>
-            </div>
-          </header>
-
-          <div className="eyebrow" style={{ marginBottom: 12 }}>Executive Briefing</div>
-          <div className="panel-row three">
-            <ExecPanel
-              label="Today's Live Time"
-              figure="5"
-              unit="meetings"
-              foot="3 hr 20 min scheduled · 90 min recoverable through async and agent coverage."
-            />
-            <ExecPanel
-              label="Decisions Pending"
-              figure="3"
-              unit="open"
-              foot="1 decision ready today. 1 lacks a decision owner. 1 awaiting a pre-read."
-            />
-            <ExecPanel
-              label="Requiring Structure"
-              figure="4"
-              unit="meetings"
-              foot="Missing a defined output, an owner, or a required attendee contract."
-            />
           </div>
 
-          <div className="section-header" style={{ marginTop: 44 }}>
-            <h2>The operating stance</h2>
-          </div>
-          <div className="grid-3">
-            <StancePanel
-              n="01"
-              title="The meeting is a work object"
-              body="Not a calendar event. Every meeting carries a purpose, a required output, and an owner — or it should not consume live time."
-            />
-            <StancePanel
-              n="02"
-              title="Attendance is a role"
-              body="If a person has no role in the outcome, they receive the summary. Presence is earned by contribution, not habit."
-            />
-            <StancePanel
-              n="03"
-              title="Agents extend coverage"
-              body="An agent can attend, capture, and escalate — but never approve, commit, or replace accountability."
-            />
+          {/* 5. Agent Coverage */}
+          <SectionHeader title="Agent Coverage" aside="Represented attendance" />
+          <table className="exec-table">
+            <tbody>
+              {AGENT_COVERAGE_TODAY.map((a) => (
+                <tr key={a.meeting}>
+                  <td className="strong">{a.meeting}</td>
+                  <td className="muted" style={{ textAlign: 'right' }}>
+                    {a.coverage}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* 6. Decision Queue */}
+          <SectionHeader title="Decision Queue" aside="Awaiting input or ownership" />
+          <table className="exec-table">
+            <thead>
+              <tr>
+                <th style={{ width: '30%' }}>Decision</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>What it needs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {DECISION_QUEUE.map((d) => (
+                <tr key={d.decision}>
+                  <td className="strong">{d.decision}</td>
+                  <td className="muted">{d.owner}</td>
+                  <td>
+                    <span className="status">{d.status}</span>
+                  </td>
+                  <td>{d.need}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* 7. Work Friction Signals */}
+          <SectionHeader title="Work Friction Signals" aside="Where the organization creates drag" />
+          <div className="work-card">
+            <BulletList items={FRICTION_SIGNALS} />
           </div>
         </div>
 
+        {/* 8. Moderator Panel — guides the employee */}
         <ModeratorPanel
-          sub="Calm facilitation"
-          notes={[
-            '3 meetings lack a defined output.',
-            '2 recurring meetings have no recent decisions.',
-            '1 meeting can be agent-covered.',
-            'Focus block protected from 1:00–3:00.',
-          ]}
+          sub="Guiding your day"
+          notes={TODAY_MODERATOR}
           foot={
-            <button className="btn btn-sm btn-ghost" onClick={() => navigate('review')}>
-              Open Executive Review
+            <button className="btn btn-sm btn-solid" style={{ width: '100%' }} onClick={() => navigate('build')}>
+              {PRODUCT.primaryAction}
             </button>
           }
         />
       </div>
-    </div>
-  )
-}
-
-function StancePanel({ n, title, body }: { n: string; title: string; body: string }) {
-  return (
-    <div className="work-card">
-      <div className="wc-meta">{n}</div>
-      <div className="wc-title" style={{ fontSize: 18, marginTop: 6 }}>
-        {title}
-      </div>
-      <p className="muted" style={{ marginTop: 10, fontSize: 14, lineHeight: 1.55 }}>
-        {body}
-      </p>
     </div>
   )
 }

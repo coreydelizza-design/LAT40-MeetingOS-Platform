@@ -669,3 +669,134 @@ export const EXEC_INTERVENTIONS = [
   'Move observer-heavy meetings to summary-first.',
   'Assign dependency owners for Finance, Legal, and Product bottlenecks.',
 ]
+
+// ---------------------------------------------------------------------------
+// Executive Alignment Room (Today) — the employee-facing operating brief
+// ---------------------------------------------------------------------------
+
+export const TODAY_OPENING =
+  'Your calendar contains 6 live events. 2 require your judgment, 2 can be agent-covered, and 1 meeting lacks a defined outcome.'
+
+export const ALIGNMENT_SUMMARY: {
+  label: string
+  figure: string
+  unit?: string
+  foot: string
+}[] = [
+  { label: 'Live Required', figure: '2', foot: 'meetings require human judgment' },
+  { label: 'Agent Coverage', figure: '2', foot: 'meetings can be covered by agent' },
+  { label: 'Decisions Pending', figure: '3', foot: 'decisions need input or ownership' },
+  { label: 'Structure Needed', figure: '1', foot: 'meeting lacks a defined outcome' },
+  { label: 'Recoverable Time', figure: '90', unit: 'min', foot: 'may be reclaimed today' },
+]
+
+export const JUDGMENT_MEETINGS: {
+  title: string
+  judgment: string
+  role: string
+  action: string
+  impact: string
+}[] = [
+  {
+    title: 'Pricing Exception Review',
+    judgment: 'Decision ready',
+    role: 'Required Contributor',
+    action: 'Attend live',
+    impact: '25 min · high value',
+  },
+  {
+    title: 'Product Launch Checkpoint',
+    judgment: 'Agent can cover',
+    role: 'Informed only',
+    action: 'Send org agent',
+    impact: 'Recover 30 min',
+  },
+  {
+    title: 'Weekly Status Sync',
+    judgment: 'Async recommended',
+    role: 'Optional Reviewer',
+    action: 'Convert or decline',
+    impact: 'Recover 30 min',
+  },
+  {
+    title: 'Customer Escalation Room',
+    judgment: 'Live required',
+    role: 'Required Contributor',
+    action: 'Attend with prep',
+    impact: '45 min · critical',
+  },
+  {
+    title: 'Forecast Review',
+    judgment: 'Structure needed',
+    role: 'Decision Input',
+    action: 'Add decision owner',
+    impact: '30 min · unscheduled',
+  },
+]
+
+export const MY_ROLE_TODAY: { role: string; where: string }[] = [
+  { role: 'Required Contributor', where: 'Pricing Exception Review' },
+  { role: 'Summary Recipient', where: 'Product Launch Checkpoint' },
+  { role: 'Decision Input', where: 'Forecast Review' },
+  { role: 'Action Owner', where: 'Legal follow-up' },
+  { role: 'Agent Observer', where: 'Weekly Status Sync' },
+]
+
+export const ORG_IMPACT = {
+  org: 'Revenue Operations',
+  signals: [
+    'Forecast risk mentioned in 2 meetings',
+    'Finance dependency remains unresolved',
+    'CRM hygiene issue repeated across 3 prior meetings',
+    'Sales leadership decision pending by Friday',
+  ],
+  otherOrgs: ['Product', 'Legal', 'Finance', 'Security', 'Customer Success'],
+}
+
+export const AGENT_COVERAGE_TODAY: { meeting: string; coverage: string }[] = [
+  { meeting: 'Product Launch Checkpoint', coverage: 'Team agent can attend' },
+  { meeting: 'Weekly Status Sync', coverage: 'Agent recommended' },
+  { meeting: 'Pricing Exception Review', coverage: 'Human required; agent observes' },
+  { meeting: 'Customer Escalation Room', coverage: 'Human required' },
+]
+
+export const DECISION_QUEUE: {
+  decision: string
+  owner: string
+  status: string
+  need: string
+}[] = [
+  {
+    decision: 'Pricing exception',
+    owner: 'Finance owner',
+    status: 'Open',
+    need: 'Margin condition needed',
+  },
+  {
+    decision: 'Launch readiness',
+    owner: 'Product owner',
+    status: 'Pending',
+    need: 'Security clearance needed',
+  },
+  {
+    decision: 'Customer escalation path',
+    owner: 'Customer Success owner',
+    status: 'Escalated',
+    need: 'Mitigation owner needed',
+  },
+]
+
+export const FRICTION_SIGNALS: string[] = [
+  'Pricing approvals have appeared in 4 meetings without closure.',
+  'Legal review is being introduced late in customer workflows.',
+  'Product is carrying 3 unresolved roadmap dependencies.',
+  'Two recurring meetings have produced no decisions this month.',
+]
+
+export const TODAY_MODERATOR: string[] = [
+  'Start with the meetings requiring judgment.',
+  'Send your agent where you are informed-only.',
+  'Do not enter decision meetings without a pre-read.',
+  'Protect focus time unless escalation is live-required.',
+  'Resolve one open dependency before scheduling a follow-up.',
+]
