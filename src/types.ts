@@ -163,6 +163,78 @@ export interface Risk {
   mitigation: string
 }
 
+// ---------------------------------------------------------------------------
+// True Operational Graph — the three-layer measured model
+//   Receipts → Relationship Scorecards → True Operational Graph
+// ---------------------------------------------------------------------------
+
+export type ReceiptSource =
+  | 'meeting_builder'
+  | 'attendee_view'
+  | 'decision_room'
+  | 'agent_layer'
+  | 'closeout'
+
+/** Layer 1 — a single factual, auditable operating event. */
+export interface EventReceipt {
+  id: string
+  timestamp: string
+  source: ReceiptSource
+  eventType: string
+  actor: string
+  actorOrg: string
+  targetOrg: string
+  meetingId: string
+  decisionType: string
+  workflowType: string
+  description: string
+  elapsedTime: string
+  evidenceLabel: string
+}
+
+export type HealthState = 'healthy' | 'slow' | 'escalated' | 'missing' | 'improving'
+
+/** Layer 2 — the aggregated bank-statement view of one cross-org relationship. */
+export interface RelationshipScorecard {
+  id: string
+  sourceOrg: string
+  targetOrg: string
+  relationshipLabel: string
+  decisionType: string
+  workflowType: string
+  period: string
+  eventCount: number
+  meetingCount: number
+  jointHours: number
+  averageResolutionTime: string
+  medianResolutionTime: string
+  asyncResolutionRate: string
+  liveEscalationRate: string
+  decisionDeferralRate: string
+  reopenRate: string
+  unresolvedDependencyCount: number
+  averageDependencyAge: string
+  agentCoverableHours: number
+  topRepeatTopics: string[]
+  recommendedIntervention: string
+  healthState: HealthState
+  evidenceReceiptIds: string[]
+}
+
+/** The claimed model — what Org Cards and leadership say the relationship is. */
+export interface ClaimedRelationship {
+  id: string
+  sourceOrg: string
+  targetOrg: string
+  relationshipLabel: string
+  claimedDependency: string
+  claimedDecisionRight: string
+  expectedWorkflow: string
+  expectedEscalationPath: string
+  expectedAgentUse: string
+  confidence: 'High' | 'Medium' | 'Low'
+}
+
 /** Left-rail navigation identity for the internal view router. */
 export type ViewId =
   | 'today'

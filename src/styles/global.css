@@ -629,3 +629,39 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 .meta-line { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray); }
+
+/* ==========================================================================
+   True Operational Graph — measured edges (line weight, not color)
+   ========================================================================== */
+
+.edge {
+  display: grid;
+  grid-template-columns: 150px 96px 1fr auto;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-left: 2px solid transparent;
+  padding: 16px 20px;
+}
+.edge:last-child { border-bottom: 0; }
+.edge:hover { background: var(--panel); }
+.edge.active { border-left-color: var(--ink); background: var(--panel); }
+.edge .edge-label { font-family: var(--serif); font-size: 16px; font-weight: 500; }
+.edge .edge-note { font-size: 12px; color: var(--smoke); letter-spacing: 0.02em; }
+
+.edge-line { height: 0; width: 100%; }
+.edge-line.thick { border-top: 3px solid var(--ink); }
+.edge-line.thin { border-top: 1px solid var(--graphite); }
+.edge-line.dashed { border-top: 1.5px dashed var(--graphite); }
+.edge-line.ghost { border-top: 1px dotted var(--faint); }
+
+/* Health labels — differentiate by weight/border, never hue */
+.status.health-healthy { color: var(--smoke); border-color: var(--line); }
+.status.health-slow { border-color: var(--line-strong); color: var(--graphite); }
+.status.health-escalated { border-color: var(--ink); border-width: 2px; color: var(--ink); }
+.status.health-missing { border-style: dashed; color: var(--gray); }
+.status.health-improving { color: var(--graphite); border-color: var(--line-strong); }
