@@ -80,7 +80,7 @@ export function ModeratorPanel({
   notes,
   foot,
 }: {
-  title?: string
+  title?: ReactNode
   sub?: string
   notes: ReactNode[]
   foot?: ReactNode

@@ -292,4 +292,42 @@ export const GUIDANCE = {
       'The graph is redrawn each quarter from new scorecards. Successful interventions should make edges thinner, faster, and less escalation-heavy.',
     action: 'Redraw next quarter to confirm interventions worked.',
   },
+
+  // --- Attendee View ---
+  assigned_role: {
+    title: 'Assigned Role',
+    description:
+      'The role the organizer declared for you. It determines whether you are needed live, can send an agent, or should receive the summary.',
+    action: 'Confirm it is accurate before accepting live time.',
+  },
+  required_contributor: {
+    title: 'Required Contributor',
+    description:
+      'You are expected to provide input the decision cannot be made without. Contributors shape the outcome; observers do not.',
+    action: 'Bring the input you were invited for, or challenge the role.',
+  },
+  summary_only: {
+    title: 'Summary-only',
+    description:
+      'You receive the structured outcome instead of attending live. Reserved for roles without required live input.',
+    action: 'Choose this when your presence would be informational.',
+  },
+  role_challenge: {
+    title: 'Role Challenge',
+    description:
+      'A structured way to dispute an inaccurate role before live time is consumed. The challenge is recorded as a factual receipt.',
+    action: 'Challenge when your role does not match your actual input.',
+  },
+  receipt_preview: {
+    title: 'Receipt Preview',
+    description:
+      'The factual event your response will create. Receipts are timestamped, source-labeled, and feed the True Operational Graph.',
+    action: 'Review what will be recorded before you respond.',
+  },
+  attendance_judgment: {
+    title: 'Attendance Judgment',
+    description:
+      'The platform’s read on whether your live attendance is justified, and what to do before joining.',
+    action: 'Follow it before you accept or decline.',
+  },
 } satisfies Record<string, GuidanceCopy>

@@ -1262,3 +1262,148 @@ export const OPERATIONAL_INTERVENTIONS: string[] = [
   'Validate missing Sales–Finance pricing-governance path.',
   'Redraw the graph at the next QBR.',
 ]
+
+// ===========================================================================
+// Attendee View — attendee-validated facts from a meeting invite link
+// ===========================================================================
+
+/** The signed-in attendee for the mock invite. */
+export const ATTENDEE = {
+  name: 'A. Reyes',
+  org: 'Sales',
+  role: 'Required Contributor',
+  meetingId: 'CE-0412',
+  meeting: 'Pricing Exception Review',
+  decisionType: 'Pricing exception',
+  targetOrg: 'Finance',
+}
+
+export const ATTENDEE_INVITE = {
+  meeting: 'Pricing Exception Review',
+  inviteStatus: 'You were invited as a Required Contributor.',
+  reason:
+    'You own customer context for the pricing exception and are expected to confirm urgency, account impact, and customer deadline.',
+  contract: [
+    { label: 'Purpose', value: 'Resolve customer pricing exception' },
+    { label: 'Required output', value: 'Approve, reject, or revise exception' },
+    { label: 'Decision owner', value: 'Finance Director' },
+    { label: 'Required attendees', value: 'Sales, Finance, Legal, Product' },
+    { label: 'Summary recipients', value: 'Customer Success, Revenue Operations' },
+    { label: 'Time limit', value: '25 minutes' },
+    { label: 'Pre-read required', value: 'Margin model, contract redline, customer timeline' },
+    { label: 'Agent coverage', value: 'Agent may observe, human required for Sales input' },
+    { label: 'Sensitivity level', value: 'Internal restricted' },
+  ],
+}
+
+export const WHY_INVITED: { k: string; v: string }[] = [
+  { k: 'Assigned role', v: 'Required Contributor' },
+  { k: 'Expected input', v: 'Customer urgency, commercial impact, deadline risk' },
+  { k: 'Impacted orgs', v: 'Sales, Finance, Legal' },
+  { k: 'Required live judgment', v: 'Yes' },
+  { k: 'Agent eligibility', v: 'Agent may observe, but cannot replace human' },
+]
+
+/** Attendance actions → the receipt each one would create. */
+export const ATTENDANCE_ACTIONS: {
+  key: string
+  label: string
+  eventType: string
+  description: string
+}[] = [
+  {
+    key: 'accept',
+    label: 'Accept live role',
+    eventType: 'role_accepted',
+    description: 'Sales accepted Required Contributor role for Pricing Exception Review.',
+  },
+  {
+    key: 'send_agent',
+    label: 'Send my agent to observe',
+    eventType: 'agent_observe_requested',
+    description: 'Sales sent an agent to observe Pricing Exception Review.',
+  },
+  {
+    key: 'summary_only',
+    label: 'Move me to summary-only',
+    eventType: 'summary_only_requested',
+    description: 'Sales requested summary-only participation for Pricing Exception Review.',
+  },
+  {
+    key: 'request_preread',
+    label: 'Request pre-read',
+    eventType: 'preread_requested',
+    description: 'Required Contributor requested pre-read before accepting live attendance.',
+  },
+  {
+    key: 'request_async',
+    label: 'Request async workflow',
+    eventType: 'async_requested',
+    description: 'Sales requested an async workflow instead of live time.',
+  },
+  {
+    key: 'challenge',
+    label: 'Challenge my assigned role',
+    eventType: 'role_challenged',
+    description: 'Sales challenged the assigned Required Contributor role.',
+  },
+  {
+    key: 'decline',
+    label: 'Decline live attendance with reason',
+    eventType: 'attendance_declined',
+    description: 'Sales declined live attendance with a stated reason.',
+  },
+]
+
+/** Role-challenge reasons → the receipt description they produce. */
+export const CHALLENGE_OPTIONS: { label: string; description: string }[] = [
+  {
+    label: 'I am informed-only',
+    description: 'Sales challenged required attendance, stating an informed-only role.',
+  },
+  {
+    label: 'My org can send an agent',
+    description: 'Sales challenged required attendance because an org agent can cover.',
+  },
+  {
+    label: 'Required context is missing',
+    description: 'Sales challenged required attendance because required pre-read was missing.',
+  },
+  {
+    label: 'I am not the decision owner',
+    description: 'Sales challenged required attendance, stating they are not the decision owner.',
+  },
+  {
+    label: 'This should be async',
+    description: 'Sales challenged required attendance because the work can resolve async.',
+  },
+  {
+    label: 'Another person should represent this role',
+    description: 'Sales challenged required attendance, nominating another representative.',
+  },
+]
+
+export const PREREAD_ITEMS: { item: string; status: 'Available' | 'Missing' | 'Needs review' }[] = [
+  { item: 'Margin model', status: 'Available' },
+  { item: 'Contract redline', status: 'Needs review' },
+  { item: 'Customer timeline', status: 'Available' },
+  { item: 'Product delivery impact', status: 'Missing' },
+  { item: 'Legal exception language', status: 'Missing' },
+]
+
+export const AGENT_OPTIONS: string[] = [
+  'Agent observes only',
+  'Agent attends instead of me',
+  'Agent summarizes for my org',
+  'Human required',
+]
+
+export const AGENT_RECOMMENDED = 'Human required; agent may observe.'
+
+export const ATTENDANCE_JUDGMENT: string[] = [
+  'Your live attendance is justified because customer judgment is required.',
+  'Agent can observe but should not replace you.',
+  'Pre-read should be reviewed before joining.',
+  'If Legal language is missing, request pre-read before accepting.',
+  'Your response will become a factual receipt.',
+]

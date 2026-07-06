@@ -10,6 +10,7 @@ import { Agents } from './screens/Agents'
 import { StructuredCapture } from './screens/StructuredCapture'
 import { WorkMap } from './screens/WorkMap'
 import { ExecutiveReview } from './screens/ExecutiveReview'
+import { AttendeeView } from './screens/AttendeeView'
 
 /**
  * Internal view router. Deliberately dependency-free — a single view-state
@@ -30,7 +31,9 @@ function renderView(view: ViewId, navigate: (v: ViewId) => void) {
     case 'today':
       return <TodayView navigate={navigate} />
     case 'calendar':
-      return <SmartCalendar />
+      return <SmartCalendar navigate={navigate} />
+    case 'attendee':
+      return <AttendeeView navigate={navigate} />
     case 'build':
       return <BuildMeeting />
     case 'org-cards':

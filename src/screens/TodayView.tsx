@@ -216,9 +216,22 @@ export function TodayView({ navigate }: { navigate: (v: ViewId) => void }) {
           sub="Guiding your day"
           notes={TODAY_MODERATOR}
           foot={
-            <button className="btn btn-sm btn-solid" style={{ width: '100%' }} onClick={() => navigate('build')}>
-              {PRODUCT.primaryAction}
-            </button>
+            <div className="stack-8">
+              <button
+                className="btn btn-sm btn-ghost"
+                style={{ width: '100%' }}
+                onClick={() => navigate('attendee')}
+              >
+                Review invite
+              </button>
+              <button
+                className="btn btn-sm btn-solid"
+                style={{ width: '100%' }}
+                onClick={() => navigate('build')}
+              >
+                {PRODUCT.primaryAction}
+              </button>
+            </div>
           }
         />
       </div>

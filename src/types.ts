@@ -235,6 +235,25 @@ export interface ClaimedRelationship {
   confidence: 'High' | 'Medium' | 'Low'
 }
 
+/**
+ * Attendee View — attendee-validated facts (the counterpart to the organizer's
+ * declared facts from the Meeting Builder). Lightweight preview of the receipt
+ * an attendee response would create.
+ */
+export interface AttendeeReceiptPreview {
+  id: string
+  meetingId: string
+  attendee: string
+  attendeeOrg: string
+  assignedRole: string
+  selectedAction: string
+  reason?: string
+  agentSelection?: string
+  receiptEventType: string
+  receiptDescription: string
+  timestamp: string
+}
+
 /** Left-rail navigation identity for the internal view router. */
 export type ViewId =
   | 'today'
@@ -246,3 +265,5 @@ export type ViewId =
   | 'capture'
   | 'work-map'
   | 'review'
+  // Reached via "Review invite" links, not shown in the left rail.
+  | 'attendee'

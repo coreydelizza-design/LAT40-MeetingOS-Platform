@@ -4,7 +4,7 @@ import { Kicker, SectionHeader, StatusLabel, ModeratorPanel } from '../component
 import { GuidanceHint, type GuidanceCopy } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
 import { MEETINGS } from '../data/mock'
-import type { Meeting, MeetingState } from '../types'
+import type { Meeting, MeetingState, ViewId } from '../types'
 
 const STATE_GUIDE: Record<MeetingState, GuidanceCopy> = {
   'ASYNC RECOMMENDED': GUIDANCE.async_recommended,
@@ -23,7 +23,7 @@ const INTERVENTIONS = [
   'Protect focus block',
 ]
 
-export function SmartCalendar() {
+export function SmartCalendar({ navigate }: { navigate: (v: ViewId) => void }) {
   const [selected, setSelected] = useState<string>('mtg-pricing-exception')
 
   return (
@@ -70,6 +70,15 @@ export function SmartCalendar() {
             'Your agent can attend the Product Launch Checkpoint.',
             'The Pricing Exception Review requires a pre-read before joining.',
           ]}
+          foot={
+            <button
+              className="btn btn-sm btn-solid"
+              style={{ width: '100%' }}
+              onClick={() => navigate('attendee')}
+            >
+              Review invite
+            </button>
+          }
         />
       </div>
     </div>
