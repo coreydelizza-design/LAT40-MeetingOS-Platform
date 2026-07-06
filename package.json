@@ -1,0 +1,29 @@
+{
+  "name": "meetingos",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MeetingOS — an executive operating workspace that governs live time, structures decisions, deploys org-based agents, and maps how the organization actually works.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "start": "vite preview --host 0.0.0.0 --port ${PORT:-4173}",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
