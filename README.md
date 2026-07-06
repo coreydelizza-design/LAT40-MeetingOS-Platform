@@ -1,8 +1,8 @@
-# MeetingOS
+# LAT40 MeetingOS
 
 **An executive operating workspace that governs live time, structures decisions, deploys org-based agents, and maps how the organization actually works.**
 
-MeetingOS treats a meeting as a **governed work object**, not a calendar event. It is not a meeting recorder, a calendar clone, a dashboard, a chatbot, or a transcript viewer. The interface is a **black-and-white executive decision room** — monochrome, editorial, sparse, and serious.
+LAT40 MeetingOS treats a meeting as a **governed work object**, not a calendar event. It is not a meeting recorder, a calendar clone, a dashboard, a chatbot, or a transcript viewer. The interface is a **black-and-white executive decision room** — monochrome, editorial, sparse, and serious.
 
 The platform helps an organization answer:
 

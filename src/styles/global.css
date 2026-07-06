@@ -108,6 +108,14 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-weight: 600;
   letter-spacing: -0.01em;
 }
+.command-bar .brand .lat40 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  vertical-align: 1px;
+  margin-right: 2px;
+}
 .command-bar .brand .os { color: var(--smoke); }
 
 .command-bar .workspace {

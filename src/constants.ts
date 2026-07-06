@@ -2,7 +2,7 @@ import type { ViewId } from './types'
 
 /** Product constants. The visual + language lock lives here so it stays consistent. */
 export const PRODUCT = {
-  name: 'MeetingOS',
+  name: 'LAT40 MeetingOS',
   workspace: 'Executive Alignment Room',
   primaryAction: 'Build Smart Meeting',
   secondaryAction: 'Open Org Cards',

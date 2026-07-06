@@ -25,9 +25,9 @@ function CommandBar({ onNavigate }: { onNavigate: (v: ViewId) => void }) {
         className="brand"
         style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer' }}
         onClick={() => onNavigate('today')}
-        aria-label="MeetingOS home"
+        aria-label="LAT40 MeetingOS home"
       >
-        Meeting<span className="os">OS</span>
+        <span className="lat40">LAT40</span> Meeting<span className="os">OS</span>
       </button>
       <span className="workspace">{PRODUCT.workspace}</span>
       <span className="date">{TODAY_LABEL}</span>
