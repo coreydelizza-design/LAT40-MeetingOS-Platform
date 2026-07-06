@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Kicker, SectionHeader, BulletList } from '../components/primitives'
+import { GuidanceHint } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import {
   CLAIMED_RELATIONSHIPS,
   GRAPH_EDGES,
@@ -46,7 +48,11 @@ export function WorkMap() {
     <div className="canvas">
       <header className="page-head">
         <Kicker>Work Reality Map</Kicker>
-        <h1 className="display">True Operational Graph</h1>
+        <h1 className="display">
+          <GuidanceHint {...GUIDANCE.true_operational_graph} underline={false}>
+            True Operational Graph
+          </GuidanceHint>
+        </h1>
         <p className="thesis">
           The org chart shows structure. The True Operational Graph shows measured operating
           reality.
@@ -74,7 +80,7 @@ export function WorkMap() {
       <div className="grid-2">
         <div>
           <div className="label" style={{ marginBottom: 8 }}>
-            Claimed Model
+            <GuidanceHint {...GUIDANCE.claimed_model}>Claimed Model</GuidanceHint>
           </div>
           <p className="muted" style={{ fontSize: 13, marginBottom: 16 }}>
             Built from Org Cards and leadership-stated dependencies.
@@ -98,7 +104,7 @@ export function WorkMap() {
 
         <div>
           <div className="label" style={{ marginBottom: 8 }}>
-            Measured Model
+            <GuidanceHint {...GUIDANCE.measured_model}>Measured Model</GuidanceHint>
           </div>
           <p className="muted" style={{ fontSize: 13, marginBottom: 16 }}>
             Drawn from 60 days of meeting, attendee, agent, decision, and dependency receipts.
@@ -121,19 +127,33 @@ export function WorkMap() {
             })}
           </div>
           <p className="faint" style={{ fontSize: 12, marginTop: 12, lineHeight: 1.5 }}>
-            Line weight reflects measured volume and speed — thick is heavy and slow, dotted is an
-            expected edge with no observed events. Select an edge to open its scorecard.
+            Line weight reflects measured volume and speed — thick is heavy and slow, dotted is a{' '}
+            <GuidanceHint {...GUIDANCE.missing_expected_relationship} align="right">
+              missing expected relationship
+            </GuidanceHint>
+            . Select an edge to open its scorecard.
           </p>
         </div>
       </div>
 
       {/* 2 — Relationship Scorecard (bank statement) */}
-      <SectionHeader title="Relationship Scorecard" aside={selected.relationshipLabel} />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.relationship_scorecard} underline={false}>
+            Relationship Scorecard
+          </GuidanceHint>
+        }
+        aside={selected.relationshipLabel}
+      />
       <Scorecard sc={selected} />
 
       {/* 3 — Receipts Ledger */}
       <SectionHeader
-        title="Receipts Ledger"
+        title={
+          <GuidanceHint {...GUIDANCE.receipts_ledger} underline={false}>
+            Receipts Ledger
+          </GuidanceHint>
+        }
         aside={`${receipts.length} events behind this scorecard`}
       />
       {receipts.length ? (
@@ -212,7 +232,13 @@ export function WorkMap() {
       </div>
 
       {/* 6 — Quarterly Redraw */}
-      <SectionHeader title="Quarterly Redraw" />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.quarterly_redraw} underline={false}>
+            Quarterly Redraw
+          </GuidanceHint>
+        }
+      />
       <div className="big-statement" style={{ fontSize: 20 }}>
         Each quarter, the graph is redrawn from new scorecards. Edges should become thinner, faster,
         and less escalation-heavy where interventions worked.

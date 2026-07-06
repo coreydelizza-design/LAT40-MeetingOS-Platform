@@ -1,4 +1,6 @@
 import { Kicker, SectionHeader, ExecPanel, ModeratorPanel, BulletList } from '../components/primitives'
+import { GuidanceHint } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import { PRODUCT } from '../constants'
 import type { ViewId } from '../types'
 import {
@@ -12,6 +14,15 @@ import {
   FRICTION_SIGNALS,
   TODAY_MODERATOR,
 } from '../data/mock'
+
+/** Guidance keyed by the summary panel label text. */
+const SUMMARY_GUIDANCE: Record<string, (typeof GUIDANCE)[keyof typeof GUIDANCE]> = {
+  'Live Required': GUIDANCE.live_required,
+  'Agent Coverage': GUIDANCE.agent_coverage,
+  'Decisions Pending': GUIDANCE.decisions_pending,
+  'Structure Needed': GUIDANCE.structure_needed,
+  'Recoverable Time': GUIDANCE.recoverable_time,
+}
 
 /** Where each recommended action takes the employee. Low-risk navigation only. */
 const ACTION_TARGET: Record<string, ViewId> = {
@@ -58,15 +69,24 @@ export function TodayView({ navigate }: { navigate: (v: ViewId) => void }) {
         className="panel-row"
         style={{ gridTemplateColumns: `repeat(${ALIGNMENT_SUMMARY.length}, 1fr)` }}
       >
-        {ALIGNMENT_SUMMARY.map((s) => (
-          <ExecPanel
-            key={s.label}
-            label={s.label}
-            figure={s.figure}
-            unit={s.unit}
-            foot={s.foot}
-          />
-        ))}
+        {ALIGNMENT_SUMMARY.map((s) => {
+          const guide = SUMMARY_GUIDANCE[s.label]
+          return (
+            <ExecPanel
+              key={s.label}
+              label={
+                guide ? (
+                  <GuidanceHint {...guide}>{s.label}</GuidanceHint>
+                ) : (
+                  s.label
+                )
+              }
+              figure={s.figure}
+              unit={s.unit}
+              foot={s.foot}
+            />
+          )
+        })}
       </div>
 
       <div className="canvas-split" style={{ marginTop: 8 }}>
@@ -178,7 +198,14 @@ export function TodayView({ navigate }: { navigate: (v: ViewId) => void }) {
           </table>
 
           {/* 7. Work Friction Signals */}
-          <SectionHeader title="Work Friction Signals" aside="Where the organization creates drag" />
+          <SectionHeader
+            title={
+              <GuidanceHint {...GUIDANCE.work_friction_signals} underline={false}>
+                Work Friction Signals
+              </GuidanceHint>
+            }
+            aside="Where the organization creates drag"
+          />
           <div className="work-card">
             <BulletList items={FRICTION_SIGNALS} />
           </div>

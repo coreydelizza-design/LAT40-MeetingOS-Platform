@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Kicker, SectionHeader, ContractBlock, BulletList } from '../components/primitives'
+import { GuidanceHint } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import { PRICING_CONTRACT } from '../data/mock'
 
 const INTENTS = [
@@ -86,7 +88,11 @@ export function BuildMeeting() {
 
       <div className="canvas-split">
         <div>
-          <Step n="1" title="Intent" question="What are you trying to accomplish?">
+          <Step
+            n="1"
+            title={<GuidanceHint {...GUIDANCE.intent}>Intent</GuidanceHint>}
+            question="What are you trying to accomplish?"
+          >
             <div className="chip-row">
               {INTENTS.map((o) => (
                 <button
@@ -100,7 +106,11 @@ export function BuildMeeting() {
             </div>
           </Step>
 
-          <Step n="2" title="Required Output" question="What must exist when this is complete?">
+          <Step
+            n="2"
+            title={<GuidanceHint {...GUIDANCE.required_output}>Required Output</GuidanceHint>}
+            question="What must exist when this is complete?"
+          >
             <div className="chip-row">
               {OUTPUTS.map((o) => (
                 <button
@@ -116,7 +126,11 @@ export function BuildMeeting() {
 
           <Step
             n="3"
-            title="Live Discussion Requirement"
+            title={
+              <GuidanceHint {...GUIDANCE.live_discussion_required}>
+                Live Discussion Requirement
+              </GuidanceHint>
+            }
             question="Is live discussion required?"
           >
             <div className="choice-grid">
@@ -134,7 +148,7 @@ export function BuildMeeting() {
 
           <Step
             n="4"
-            title="Attendance Roles"
+            title={<GuidanceHint {...GUIDANCE.attendance_roles}>Attendance Roles</GuidanceHint>}
             question="Assign roles — not a guest list."
           >
             <div className="chip-row">
@@ -176,7 +190,11 @@ export function BuildMeeting() {
         <div className="stack-24">
           <aside className="moderator" style={{ position: 'static' }}>
             <div className="mod-head">
-              <div className="title">Meeting Judgment</div>
+              <div className="title">
+                <GuidanceHint {...GUIDANCE.meeting_judgment} underline={false}>
+                  Meeting Judgment
+                </GuidanceHint>
+              </div>
               <div className="sub">Recommendation</div>
             </div>
             <div style={{ padding: '18px 20px' }}>
@@ -197,6 +215,14 @@ export function BuildMeeting() {
                   `Context to pre-read — ${context.length || 'none'}`,
                 ]}
               />
+              <div className="rule" />
+              <p className="faint" style={{ fontSize: 12.5, lineHeight: 1.5 }}>
+                Choosing live over an async recommendation records an{' '}
+                <GuidanceHint {...GUIDANCE.async_override}>
+                  async recommendation override
+                </GuidanceHint>{' '}
+                as an auditable receipt.
+              </p>
             </div>
           </aside>
 
@@ -215,7 +241,14 @@ export function BuildMeeting() {
         </div>
       </div>
 
-      <SectionHeader title="Meeting Contract" aside="Generated decision object" />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.meeting_contract} underline={false}>
+            Meeting Contract
+          </GuidanceHint>
+        }
+        aside="Generated decision object"
+      />
       <ContractBlock
         seal="Confidential"
         items={[
@@ -249,7 +282,7 @@ function Step({
   children,
 }: {
   n: string
-  title: string
+  title: React.ReactNode
   question: string
   children: React.ReactNode
 }) {

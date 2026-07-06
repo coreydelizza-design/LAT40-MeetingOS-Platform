@@ -1,7 +1,18 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Kicker, SectionHeader, StatusLabel, ModeratorPanel } from '../components/primitives'
+import { GuidanceHint, type GuidanceCopy } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import { MEETINGS } from '../data/mock'
-import type { Meeting } from '../types'
+import type { Meeting, MeetingState } from '../types'
+
+const STATE_GUIDE: Record<MeetingState, GuidanceCopy> = {
+  'ASYNC RECOMMENDED': GUIDANCE.async_recommended,
+  'DECISION READY': GUIDANCE.decision_ready,
+  'AGENT CAN COVER': GUIDANCE.agent_can_cover,
+  'FOCUS PROTECTED': GUIDANCE.focus_protected,
+  'LIVE REQUIRED': GUIDANCE.live_required,
+}
 
 const INTERVENTIONS = [
   'Send agent',
@@ -77,10 +88,24 @@ function TimeBlock({
   return (
     <div className={`time-block${selected ? ' selected' : ''}`}>
       <div className="clock">{meeting.time}</div>
-      <button className="time-card" onClick={onSelect}>
+      <div
+        className="time-card"
+        role="button"
+        tabIndex={0}
+        aria-pressed={selected}
+        onClick={onSelect}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelect()
+          }
+        }}
+      >
         <div className="tc-top">
           <span className="tc-title">{meeting.title}</span>
-          <StatusLabel state={meeting.state} />
+          <GuidanceHint {...STATE_GUIDE[meeting.state]} underline={false}>
+            <StatusLabel state={meeting.state} />
+          </GuidanceHint>
           <span className="tc-dur">{meeting.duration}</span>
         </div>
         <div className="tc-grid">
@@ -88,15 +113,18 @@ function TimeBlock({
           <Field label="Required output" value={meeting.requiredOutput} />
           <Field label="Attendee role" value={meeting.attendeeRole} />
           <Field label="Agent eligibility" value={meeting.agentEligibility} />
-          <Field label="Meeting value" value={meeting.meetingValue} />
+          <Field
+            label={<GuidanceHint {...GUIDANCE.meeting_value}>Meeting value</GuidanceHint>}
+            value={meeting.meetingValue}
+          />
           <Field label="Est. cost" value={meeting.estimatedCost} />
         </div>
-      </button>
+      </div>
     </div>
   )
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value }: { label: ReactNode; value: string }) {
   return (
     <div className="tc-field">
       <span className="f-label">{label}</span>

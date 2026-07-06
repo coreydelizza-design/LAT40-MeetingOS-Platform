@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Kicker, SectionHeader, ContractBlock, ModeratorPanel } from '../components/primitives'
+import { GuidanceHint } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import { PRICING_CONTRACT } from '../data/mock'
 
 const EVIDENCE = [
@@ -25,6 +28,22 @@ const POSITIONS = [
 ]
 
 const DECISION_OPTIONS = ['Approved', 'Rejected', 'Revised', 'Deferred']
+
+const CLOSE_REQUIREMENTS: { key: string; label: ReactNode }[] = [
+  {
+    key: 'deferral',
+    label: (
+      <>
+        Decision or{' '}
+        <GuidanceHint {...GUIDANCE.deferral_reason}>deferral reason</GuidanceHint>
+      </>
+    ),
+  },
+  { key: 'owner', label: 'Owner' },
+  { key: 'actions', label: 'Action items' },
+  { key: 'recipients', label: 'Summary recipients' },
+  { key: 'followup', label: 'Follow-up destination' },
+]
 
 export function DecisionRoom() {
   const [decision, setDecision] = useState('Revised')
@@ -58,7 +77,13 @@ export function DecisionRoom() {
             Approve, reject, or revise the customer pricing exception.
           </div>
 
-          <SectionHeader title="Evidence Table" />
+          <SectionHeader
+            title={
+              <GuidanceHint {...GUIDANCE.evidence} underline={false}>
+                Evidence Table
+              </GuidanceHint>
+            }
+          />
           <table className="exec-table">
             <thead>
               <tr>
@@ -85,7 +110,13 @@ export function DecisionRoom() {
             ))}
           </div>
 
-          <SectionHeader title="Stakeholder Positions" />
+          <SectionHeader
+            title={
+              <GuidanceHint {...GUIDANCE.stakeholder_positions} underline={false}>
+                Stakeholder Positions
+              </GuidanceHint>
+            }
+          />
           <table className="exec-table">
             <tbody>
               {POSITIONS.map((p) => (
@@ -117,7 +148,10 @@ export function DecisionRoom() {
             </div>
             <div className="contract-grid">
               <Capture label="Rationale" value="Approved at revised margin floor; Legal condition to follow." />
-              <Capture label="Owner" value="VP, Revenue Operations" />
+              <Capture
+                label={<GuidanceHint {...GUIDANCE.decision_owner}>Owner</GuidanceHint>}
+                value="VP, Revenue Operations"
+              />
               <Capture label="Impacted orgs" value="Revenue Operations · Finance · Legal" />
               <Capture label="Follow-up actions" value="Legal to update exception language." />
               <Capture label="Due date" value="Fri, Jul 10" full />
@@ -139,20 +173,18 @@ export function DecisionRoom() {
 
           <aside className="moderator" style={{ position: 'static' }}>
             <div className="mod-head">
-              <div className="title">Close Meeting</div>
+              <div className="title">
+                <GuidanceHint {...GUIDANCE.closeout} underline={false}>
+                  Close Meeting
+                </GuidanceHint>
+              </div>
               <div className="sub">Cannot close without</div>
             </div>
             <div className="mod-body">
-              {[
-                'Decision or deferral reason',
-                'Owner',
-                'Action items',
-                'Summary recipients',
-                'Follow-up destination',
-              ].map((req) => (
-                <div className="mod-note" key={req}>
+              {CLOSE_REQUIREMENTS.map((req) => (
+                <div className="mod-note" key={req.key}>
                   <span className="tick" />
-                  <span>{req}</span>
+                  <span>{req.label}</span>
                 </div>
               ))}
             </div>
@@ -168,7 +200,7 @@ export function DecisionRoom() {
   )
 }
 
-function Capture({ label, value, full }: { label: string; value: string; full?: boolean }) {
+function Capture({ label, value, full }: { label: ReactNode; value: string; full?: boolean }) {
   return (
     <div className={`contract-item${full ? ' full' : ''}`}>
       <div className="ci-label">{label}</div>

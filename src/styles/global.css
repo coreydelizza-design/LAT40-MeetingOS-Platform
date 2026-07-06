@@ -514,8 +514,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   text-align: left;
   width: calc(100% - 24px);
   display: block;
+  cursor: pointer;
 }
 .time-card:hover { background: var(--panel); }
+.time-card:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
 .time-block.selected .time-card { border-color: var(--line-ink); border-width: 1px; box-shadow: inset 3px 0 0 var(--ink); }
 .time-card .tc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .time-card .tc-title { font-family: var(--serif); font-size: 19px; font-weight: 500; }
@@ -665,3 +667,89 @@ ul { margin: 0; padding: 0; list-style: none; }
 .status.health-escalated { border-color: var(--ink); border-width: 2px; color: var(--ink); }
 .status.health-missing { border-style: dashed; color: var(--gray); }
 .status.health-improving { color: var(--graphite); border-color: var(--line-strong); }
+
+/* ==========================================================================
+   Product Guidance Layer — restrained executive cues (CSS-only reveal)
+   ========================================================================== */
+
+.guidance { position: relative; display: inline-block; }
+
+.guidance-trigger {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: help;
+  text-align: inherit;
+  text-decoration: underline dotted var(--gray);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.guidance-trigger.plain { text-decoration: none; }
+.guidance-trigger:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+
+.guidance-panel {
+  position: absolute;
+  z-index: 60;
+  left: 0;
+  top: calc(100% + 8px);
+  width: 280px;
+  padding: 14px 16px;
+  background: var(--white);
+  border: 1px solid var(--line-ink);
+  box-shadow: 0 8px 24px rgba(11, 11, 12, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 120ms ease, transform 120ms ease, visibility 120ms;
+  pointer-events: none;
+  text-align: left;
+  white-space: normal;
+}
+.guidance.align-right .guidance-panel { left: auto; right: 0; }
+.guidance.guidance-top .guidance-panel {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translateY(4px);
+}
+.guidance:hover .guidance-panel,
+.guidance:focus-within .guidance-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.guidance-panel .gp-eyebrow {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+.guidance-panel .gp-title {
+  display: block;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.guidance-panel .gp-desc {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+.guidance-panel .gp-action {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--smoke);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}

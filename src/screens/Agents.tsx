@@ -1,7 +1,17 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Kicker, SectionHeader, BulletList } from '../components/primitives'
+import { GuidanceHint, type GuidanceCopy } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import { AGENTS, ORG_SUMMARIES } from '../data/mock'
 import type { Agent } from '../types'
+
+const MODE_GUIDE: Record<string, GuidanceCopy> = {
+  'Listen Mode': GUIDANCE.listen_mode,
+  'Represent Mode': GUIDANCE.represent_mode,
+  'Proxy Mode': GUIDANCE.proxy_mode,
+  'Escalation Mode': GUIDANCE.escalation_mode,
+}
 
 const MODES: { mode: string; def: string }[] = [
   { mode: 'Listen Mode', def: 'Attends silently and summarizes.' },
@@ -57,7 +67,11 @@ export function Agents() {
               {MODES.map((m) => (
                 <div className="kv-row" key={m.mode} style={{ display: 'block' }}>
                   <div className="strong" style={{ fontWeight: 600, fontSize: 13 }}>
-                    {m.mode}
+                    {MODE_GUIDE[m.mode] ? (
+                      <GuidanceHint {...MODE_GUIDE[m.mode]}>{m.mode}</GuidanceHint>
+                    ) : (
+                      m.mode
+                    )}
                   </div>
                   <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
                     {m.def}
@@ -102,7 +116,13 @@ function AgentDetail({
           <Item label="Agent type" value={agent.agentType} />
           <Item label="Active mode" value={agent.mode} />
           <Item label="Summary format" value={agent.summaryFormat} />
-          <Item label="Authority boundary" value={agent.authorityBoundary} full />
+          <Item
+            label={
+              <GuidanceHint {...GUIDANCE.authority_boundary}>Authority boundary</GuidanceHint>
+            }
+            value={agent.authorityBoundary}
+            full
+          />
         </div>
       </div>
 
@@ -143,7 +163,7 @@ function AgentDetail({
   )
 }
 
-function Item({ label, value, full }: { label: string; value: string; full?: boolean }) {
+function Item({ label, value, full }: { label: ReactNode; value: string; full?: boolean }) {
   return (
     <div className={`contract-item${full ? ' full' : ''}`}>
       <div className="ci-label">{label}</div>

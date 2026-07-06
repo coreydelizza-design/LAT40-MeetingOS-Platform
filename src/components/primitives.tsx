@@ -7,7 +7,7 @@ export function Kicker({ children }: { children: ReactNode }) {
 }
 
 /** Section header with serif title and optional right-aligned aside. */
-export function SectionHeader({ title, aside }: { title: string; aside?: ReactNode }) {
+export function SectionHeader({ title, aside }: { title: ReactNode; aside?: ReactNode }) {
   return (
     <div className="section-header">
       <h2>{title}</h2>
@@ -23,7 +23,7 @@ export function ExecPanel({
   unit,
   foot,
 }: {
-  label: string
+  label: ReactNode
   figure: ReactNode
   unit?: string
   foot?: ReactNode

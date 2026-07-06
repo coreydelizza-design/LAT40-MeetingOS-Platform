@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Kicker, SectionHeader, BulletList } from '../components/primitives'
+import { GuidanceHint } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import { ORG_CARDS } from '../data/mock'
 import type { OrgCard } from '../types'
 
@@ -46,7 +49,9 @@ function OrgDetail({ org }: { org: OrgCard }) {
     <div>
       <div className="big-statement" style={{ fontSize: 22 }}>
         <span className="label" style={{ display: 'block', marginBottom: 12 }}>
-          {org.orgName} · Mission
+          <GuidanceHint {...GUIDANCE.claimed_operating_model}>
+            {org.orgName} · Mission
+          </GuidanceHint>
         </span>
         {org.mission}
       </div>
@@ -54,14 +59,26 @@ function OrgDetail({ org }: { org: OrgCard }) {
       <div className="grid-2" style={{ marginTop: 32 }}>
         <Column title="Strategic priorities" items={org.strategicPriorities} />
         <Column title="Owned metrics" items={org.ownedMetrics} />
-        <Column title="Decision rights" items={org.decisionRights} />
+        <Column
+          title={<GuidanceHint {...GUIDANCE.decision_rights}>Decision rights</GuidanceHint>}
+          items={org.decisionRights}
+        />
         <Column title="Critical inputs" items={org.criticalInputs} />
         <Column title="Critical outputs" items={org.criticalOutputs} />
-        <Column title="Key dependencies" items={org.dependencies} />
+        <Column
+          title={<GuidanceHint {...GUIDANCE.dependencies}>Key dependencies</GuidanceHint>}
+          items={org.dependencies}
+        />
         <Column title="Common blockers" items={org.commonBlockers} />
         <Column title="Active initiatives" items={org.activeInitiatives} />
-        <Column title="Escalation rules" items={org.escalationRules} />
-        <Column title="Agent instructions" items={org.agentInstructions} />
+        <Column
+          title={<GuidanceHint {...GUIDANCE.escalation_rules}>Escalation rules</GuidanceHint>}
+          items={org.escalationRules}
+        />
+        <Column
+          title={<GuidanceHint {...GUIDANCE.agent_instructions}>Agent instructions</GuidanceHint>}
+          items={org.agentInstructions}
+        />
       </div>
 
       <SectionHeader title="Meetings This Org Should Attend" />
@@ -75,7 +92,7 @@ function OrgDetail({ org }: { org: OrgCard }) {
   )
 }
 
-function Column({ title, items }: { title: string; items: string[] }) {
+function Column({ title, items }: { title: ReactNode; items: string[] }) {
   return (
     <div>
       <div className="label" style={{ marginBottom: 12 }}>

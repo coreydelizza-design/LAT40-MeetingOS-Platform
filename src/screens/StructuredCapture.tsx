@@ -1,4 +1,6 @@
 import { Kicker, SectionHeader } from '../components/primitives'
+import { GuidanceHint } from '../components/GuidanceHint'
+import { GUIDANCE } from '../data/guidance'
 import {
   DECISIONS,
   ACTIONS,
@@ -19,7 +21,9 @@ export function StructuredCapture() {
   return (
     <div className="canvas">
       <header className="page-head">
-        <Kicker>Evidence Ledger</Kicker>
+        <Kicker>
+          <GuidanceHint {...GUIDANCE.receipt}>Evidence Ledger</GuidanceHint>
+        </Kicker>
         <h1 className="display">Structured Capture</h1>
         <p className="thesis">
           Meetings disappear when they end. Structured capture turns them into decisions, actions,
@@ -27,7 +31,14 @@ export function StructuredCapture() {
         </p>
       </header>
 
-      <SectionHeader title="Captured Decisions" aside={`${DECISIONS.length} recorded`} />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.closeout_event} underline={false}>
+            Captured Decisions
+          </GuidanceHint>
+        }
+        aside={`${DECISIONS.length} recorded`}
+      />
       <table className="exec-table">
         <thead>
           <tr>
@@ -56,7 +67,14 @@ export function StructuredCapture() {
         </tbody>
       </table>
 
-      <SectionHeader title="Created Actions" aside={`${ACTIONS.length} open`} />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.action_item} underline={false}>
+            Created Actions
+          </GuidanceHint>
+        }
+        aside={`${ACTIONS.length} open`}
+      />
       <table className="exec-table">
         <thead>
           <tr>
@@ -82,7 +100,14 @@ export function StructuredCapture() {
         </tbody>
       </table>
 
-      <SectionHeader title="Mapped Dependencies" aside={`${DEPENDENCIES.length} tracked`} />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.capture_dependency} underline={false}>
+            Mapped Dependencies
+          </GuidanceHint>
+        }
+        aside={`${DEPENDENCIES.length} tracked`}
+      />
       <table className="exec-table">
         <thead>
           <tr>
@@ -110,7 +135,14 @@ export function StructuredCapture() {
         </tbody>
       </table>
 
-      <SectionHeader title="Raised Risks" aside={`${RISKS.length} carried`} />
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.risk} underline={false}>
+            Raised Risks
+          </GuidanceHint>
+        }
+        aside={`${RISKS.length} carried`}
+      />
       <table className="exec-table">
         <thead>
           <tr>
