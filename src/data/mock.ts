@@ -1083,27 +1083,28 @@ export const SCORECARDS: RelationshipScorecard[] = [
     relationshipLabel: 'Sales ↔ Legal — Contract Exceptions',
     decisionType: 'Contract exception',
     workflowType: 'Live decision review',
-    period: 'This quarter (60 days)',
-    eventCount: 14,
-    meetingCount: 12,
+    period: 'Current quarter',
+    eventCount: 46,
+    meetingCount: 14,
     jointHours: 38,
     averageResolutionTime: '4.1 days',
-    medianResolutionTime: '3.5 days',
+    medianResolutionTime: '3.6 days',
     asyncResolutionRate: '29%',
     liveEscalationRate: '21%',
     decisionDeferralRate: '50%',
     reopenRate: '14%',
-    unresolvedDependencyCount: 4,
-    averageDependencyAge: '5 days',
+    unresolvedDependencyCount: 5,
+    averageDependencyAge: '6.2 days',
     agentCoverableHours: 11,
+    authorizedAgentCoverageHours: 4,
     topRepeatTopics: [
-      'Non-standard indemnity',
-      'Liability cap exceptions',
-      '6 async recommendations overridden',
-      '5 meetings missing required pre-read',
+      'Missing contract pre-read',
+      'Late Legal review',
+      'Unclear exception language',
+      'Customer deadline pressure',
     ],
     recommendedIntervention:
-      'Require contract exception pre-read and decision owner before live review. Deploy Legal intake agent only for first-pass validation under governed delegation rules; human approval remains required for non-standard terms.',
+      'Require contract exception pre-read and decision owner before live review. Deploy Legal intake agent for first-pass validation under governed delegation rules.',
     healthState: 'slow',
     evidenceReceiptIds: [
       'r-sl-1', 'r-sl-2', 'r-sl-3', 'r-sl-4', 'r-sl-5',
@@ -1117,19 +1118,20 @@ export const SCORECARDS: RelationshipScorecard[] = [
     relationshipLabel: 'Sales ↔ Engineering — Customer Feasibility',
     decisionType: 'Feasibility',
     workflowType: 'Async-first review',
-    period: 'This quarter (60 days)',
-    eventCount: 6,
-    meetingCount: 3,
+    period: 'Current quarter',
+    eventCount: 18,
+    meetingCount: 6,
     jointHours: 9,
     averageResolutionTime: '0.8 days',
-    medianResolutionTime: '0.5 days',
+    medianResolutionTime: '0.6 days',
     asyncResolutionRate: '83%',
     liveEscalationRate: '0%',
-    decisionDeferralRate: '0%',
+    decisionDeferralRate: '8%',
     reopenRate: '0%',
-    unresolvedDependencyCount: 0,
-    averageDependencyAge: '—',
-    agentCoverableHours: 2,
+    unresolvedDependencyCount: 1,
+    averageDependencyAge: '1.1 days',
+    agentCoverableHours: 3,
+    authorizedAgentCoverageHours: 2,
     topRepeatTopics: ['Integration limits', 'Data-volume ceilings'],
     recommendedIntervention:
       'Leave current workflow unchanged. Continue async-first feasibility review.',
@@ -1143,22 +1145,23 @@ export const SCORECARDS: RelationshipScorecard[] = [
     relationshipLabel: 'Legal ↔ Finance — Non-Standard Terms',
     decisionType: 'Non-standard terms',
     workflowType: 'Live escalation',
-    period: 'This quarter (60 days)',
-    eventCount: 4,
+    period: 'Current quarter',
+    eventCount: 12,
     meetingCount: 4,
     jointHours: 7,
     averageResolutionTime: '3.6 days',
-    medianResolutionTime: '3.2 days',
+    medianResolutionTime: '3.1 days',
     asyncResolutionRate: '25%',
     liveEscalationRate: '75%',
     decisionDeferralRate: '50%',
     reopenRate: '25%',
     unresolvedDependencyCount: 2,
-    averageDependencyAge: '8 days',
-    agentCoverableHours: 4,
+    averageDependencyAge: '5.4 days',
+    agentCoverableHours: 2,
+    authorizedAgentCoverageHours: 0,
     topRepeatTopics: ['Undefined term ownership', 'Revenue-recognition edge cases'],
     recommendedIntervention:
-      'Create shared input definition for non-standard terms. Best governed-delegation target for Phase 2; human approval remains required.',
+      'Create shared input definition for non-standard terms. Best Phase 2 governed delegation target for first-pass intake, not approval.',
     healthState: 'escalated',
     evidenceReceiptIds: ['r-lf-1', 'r-lf-2', 'r-lf-3'],
   },
@@ -1169,19 +1172,20 @@ export const SCORECARDS: RelationshipScorecard[] = [
     relationshipLabel: 'Sales ↔ Finance — Pricing Governance',
     decisionType: 'Pricing governance',
     workflowType: 'Expected — not observed',
-    period: 'This quarter (60 days)',
+    period: 'Current quarter',
     eventCount: 0,
     meetingCount: 0,
     jointHours: 0,
-    averageResolutionTime: '—',
-    medianResolutionTime: '—',
-    asyncResolutionRate: '—',
-    liveEscalationRate: '—',
-    decisionDeferralRate: '—',
-    reopenRate: '—',
+    averageResolutionTime: 'N/A',
+    medianResolutionTime: 'N/A',
+    asyncResolutionRate: 'N/A',
+    liveEscalationRate: 'N/A',
+    decisionDeferralRate: 'N/A',
+    reopenRate: 'N/A',
     unresolvedDependencyCount: 0,
-    averageDependencyAge: '—',
+    averageDependencyAge: 'N/A',
     agentCoverableHours: 0,
+    authorizedAgentCoverageHours: 0,
     topRepeatTopics: ['No direct measured pricing-governance events'],
     recommendedIntervention:
       'Validate whether Finance is intentionally separated or being bypassed in pricing decisions.',
@@ -1189,6 +1193,59 @@ export const SCORECARDS: RelationshipScorecard[] = [
     evidenceReceiptIds: [],
   },
 ]
+
+/** Executive interpretation for each selected scorecard. */
+export const SCORECARD_READINGS: Record<string, string> = {
+  'sc-sales-legal':
+    'The scorecard shows high cross-org time, slow resolution, frequent deferral, and repeated missing pre-read issues. This is an operating model problem, not a note-taking problem.',
+  'sc-sales-eng':
+    'Fast, async-first, and low-escalation. The scorecard shows a healthy operating pattern that needs no intervention.',
+  'sc-legal-finance':
+    'Volume is low but escalation is high. This suggests input ambiguity, unclear decision rights, or a trust gap.',
+  'sc-sales-finance':
+    'Absence is a finding, but not a conclusion. Validate whether the relationship is intentionally absent or being bypassed.',
+}
+
+/** From evidence to action — how each scorecard links to the operating layers. */
+export const SCORECARD_LINKAGE: Record<
+  string,
+  {
+    processFix: string
+    meetingBuilderRequirement: string
+    attendeeValidationRequirement: string
+    governedDelegationOpportunity: string
+    quarterlyRedrawExpectation: string
+  }
+> = {
+  'sc-sales-legal': {
+    processFix: 'Require contract exception pre-read and a named decision owner before any live review.',
+    meetingBuilderRequirement: 'Meeting Builder must capture required output, decision owner, and pre-read at creation.',
+    attendeeValidationRequirement: 'Attendee View must confirm role accuracy and pre-read readiness before accepting live time.',
+    governedDelegationOpportunity: 'Authorize a Legal intake agent for first-pass validation; human approval remains required.',
+    quarterlyRedrawExpectation: 'Next quarter the edge should thin as pre-read compliance rises and deferral falls.',
+  },
+  'sc-sales-eng': {
+    processFix: 'None. Preserve the async-first feasibility workflow.',
+    meetingBuilderRequirement: 'Continue defaulting feasibility reviews to async.',
+    attendeeValidationRequirement: 'Attendees confirm summary-only participation is sufficient.',
+    governedDelegationOpportunity: 'Authorized summary-only agent coverage is already sufficient.',
+    quarterlyRedrawExpectation: 'The edge should remain thin and fast.',
+  },
+  'sc-legal-finance': {
+    processFix: 'Create a shared input definition for non-standard terms and clarify decision rights.',
+    meetingBuilderRequirement: 'Meeting Builder must attach the shared term definition as required context.',
+    attendeeValidationRequirement: 'Attendees validate whether the input definition resolved the ambiguity.',
+    governedDelegationOpportunity: 'Governed delegation for first-pass intake only, not approval.',
+    quarterlyRedrawExpectation: 'Escalation rate should fall once the input definition is adopted.',
+  },
+  'sc-sales-finance': {
+    processFix: 'Validate whether Finance belongs in the pricing-governance path.',
+    meetingBuilderRequirement: 'If required, Meeting Builder must add Finance as an approver on pricing exceptions.',
+    attendeeValidationRequirement: 'Attendee View would capture whether Finance was needed but omitted.',
+    governedDelegationOpportunity: 'None until the relationship is confirmed.',
+    quarterlyRedrawExpectation: 'Either a measured edge appears next quarter, or the absence is confirmed intentional.',
+  },
+}
 
 /** Line weight for each measured edge in the graph. Style, not color. */
 export const GRAPH_EDGES: {

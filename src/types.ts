@@ -317,6 +317,7 @@ export interface RelationshipScorecard {
   unresolvedDependencyCount: number
   averageDependencyAge: string
   agentCoverableHours: number
+  authorizedAgentCoverageHours: number
   topRepeatTopics: string[]
   recommendedIntervention: string
   healthState: HealthState

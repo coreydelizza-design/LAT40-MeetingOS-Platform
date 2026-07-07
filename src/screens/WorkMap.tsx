@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Kicker, SectionHeader, BulletList } from '../components/primitives'
+import { Kicker, SectionHeader, BulletList, KVPanel } from '../components/primitives'
 import { GuidanceHint } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
 import {
@@ -9,6 +9,8 @@ import {
   EVENT_RECEIPTS,
   OPERATIONAL_READINGS,
   OPERATIONAL_INTERVENTIONS,
+  SCORECARD_READINGS,
+  SCORECARD_LINKAGE,
 } from '../data/mock'
 import type { HealthState, RelationshipScorecard, EventReceipt } from '../types'
 
@@ -136,7 +138,20 @@ export function WorkMap() {
         </div>
       </div>
 
-      {/* 2 — Relationship Scorecard (bank statement) */}
+      {/* Relationship Scorecards — the bank-statement layer */}
+      <SectionHeader title="Relationship Scorecards" aside="The evidence layer" />
+      <div
+        className="serif"
+        style={{ fontSize: 18, lineHeight: 1.4, marginBottom: 10 }}
+      >
+        Receipts are the facts. Scorecards are the bank statements.
+      </div>
+      <p className="muted" style={{ maxWidth: '74ch', marginBottom: 8 }}>
+        Each scorecard aggregates factual receipts by organization relationship, decision type,
+        workflow type, and period. These scorecards are what the True Operational Graph renders.
+      </p>
+
+      {/* 2 — Selected Scorecard Detail (bank statement) */}
       <SectionHeader
         title={
           <GuidanceHint {...GUIDANCE.relationship_scorecard} underline={false}>
@@ -196,7 +211,36 @@ export function WorkMap() {
         </div>
       )}
 
-      {/* 4 — Operational Reading */}
+      {/* 4 — Scorecard Reading (selected) */}
+      <SectionHeader title="Scorecard Reading" aside={selected.relationshipLabel} />
+      <div className="work-card" style={{ borderColor: 'var(--line-ink)' }}>
+        <p className="serif" style={{ fontSize: 17, lineHeight: 1.5, color: 'var(--graphite)' }}>
+          {SCORECARD_READINGS[selected.id]}
+        </p>
+      </div>
+
+      {/* 5 — Intervention Linkage (selected) */}
+      <SectionHeader title="Intervention Linkage" aside="From evidence to action" />
+      <KVPanel
+        rows={[
+          { k: 'Recommended process fix', v: SCORECARD_LINKAGE[selected.id].processFix },
+          { k: 'Meeting Builder requirement', v: SCORECARD_LINKAGE[selected.id].meetingBuilderRequirement },
+          {
+            k: 'Attendee validation requirement',
+            v: SCORECARD_LINKAGE[selected.id].attendeeValidationRequirement,
+          },
+          {
+            k: 'Governed delegation opportunity',
+            v: SCORECARD_LINKAGE[selected.id].governedDelegationOpportunity,
+          },
+          {
+            k: 'Quarterly redraw expectation',
+            v: SCORECARD_LINKAGE[selected.id].quarterlyRedrawExpectation,
+          },
+        ]}
+      />
+
+      {/* Operational Reading — cross-edge synthesis */}
       <SectionHeader title="Operational Reading" aside="Drawn from receipts, not interviews" />
       <div className="stack-16">
         {OPERATIONAL_READINGS.map((r, i) => (
@@ -265,6 +309,7 @@ function Scorecard({ sc }: { sc: RelationshipScorecard }) {
     { k: 'Unresolved dependencies', v: String(sc.unresolvedDependencyCount) },
     { k: 'Average dependency age', v: sc.averageDependencyAge },
     { k: 'Agent-coverable hours', v: `${sc.agentCoverableHours} hrs` },
+    { k: 'Authorized agent coverage hours', v: `${sc.authorizedAgentCoverageHours} hrs` },
   ]
 
   return (
