@@ -254,6 +254,46 @@ export interface MeetingBuilderState {
   receipts: EventReceipt[]
 }
 
+/**
+ * Meeting Closeout — the outcome-validation layer. A meeting is not complete
+ * when the call ends; it is complete when the promised outcome is validated.
+ * Frontend-only; generates EventReceipt instances with source 'closeout'.
+ */
+export interface MeetingCloseout {
+  id: string
+  meetingId: string
+  host: string
+  hostOrg: string
+  requiredOutputAchieved: 'Yes' | 'Partially' | 'No'
+  outcomeStatus: string
+  decisionStatus: string
+  deferralReason: string | null
+  actionOwnersAssigned: 'Yes' | 'No' | 'Not needed'
+  followUpCreated: boolean
+  recurrenceRecommendation: string
+  liveTimeJustified: 'Yes' | 'Partially' | 'No'
+  agentNextTimeRecommendation: string
+  closureScore: string
+  decisionClosureScore: string
+  followThroughReadinessScore: string
+  falseClosureRisk: string
+}
+
+export interface AttendeeOutcomeSignal {
+  id: string
+  meetingId: string
+  attendee: string
+  attendeeOrg: string
+  liveAttendanceRequired: string
+  assignedRoleAccurate: string
+  outcomeClear: string
+  liveDiscussionNecessary: string
+  preReadSufficient: string
+  nextActionKnown: string
+  nextMeetingRecommendation: string
+  agentCouldCoverNextTime: string
+}
+
 export type HealthState = 'healthy' | 'slow' | 'escalated' | 'missing' | 'improving'
 
 /** Layer 2 — the aggregated bank-statement view of one cross-org relationship. */
@@ -324,6 +364,7 @@ export type ViewId =
   | 'build'
   | 'org-cards'
   | 'decision-room'
+  | 'closeout'
   | 'agents'
   | 'capture'
   | 'work-map'

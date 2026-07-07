@@ -811,7 +811,17 @@ import type {
   RelationshipScorecard,
   ClaimedRelationship,
   AgentAuthorization,
+  MeetingCloseout,
+  AttendeeOutcomeSignal,
 } from '../types'
+
+/** A closeout question: each option carries the receipt it would generate. */
+export interface CloseoutQuestion {
+  id: string
+  n: number
+  question: string
+  options: { label: string; event: string; description: string }[]
+}
 
 // --- Layer 1: Event Receipts (the factual log) -----------------------------
 
@@ -1262,6 +1272,271 @@ export const OPERATIONAL_INTERVENTIONS: string[] = [
   'Create shared Legal–Finance input definition.',
   'Validate missing Sales–Finance pricing-governance path.',
   'Redraw the graph at the next QBR.',
+]
+
+// ===========================================================================
+// Meeting Closeout — outcome validation. The meeting ends when the outcome is
+// validated, not when the call ends. Receipts use source 'closeout'.
+// ===========================================================================
+
+const H = (event: string, description: string) => ({ event, description })
+
+export const CLOSEOUT_HOST_QUESTIONS: CloseoutQuestion[] = [
+  {
+    id: 'h-output',
+    n: 1,
+    question: 'Was the required output achieved?',
+    options: [
+      { label: 'Yes', ...H('required_output_confirmed', 'Host confirmed the required output was achieved.') },
+      { label: 'Partially', ...H('required_output_confirmed', 'Host marked the required output partially achieved.') },
+      { label: 'No', ...H('required_output_missed', 'Host confirmed the required output was missed.') },
+    ],
+  },
+  {
+    id: 'h-outcome',
+    n: 2,
+    question: 'What was the outcome?',
+    options: [
+      { label: 'Decision made', ...H('decision_captured', 'Host captured a decision as the outcome.') },
+      { label: 'Decision deferred', ...H('decision_deferred', 'Host deferred the decision.') },
+      { label: 'Actions only', ...H('outcome_clarity_confirmed', 'Host recorded action items only; no decision made.') },
+      { label: 'No outcome', ...H('outcome_clarity_missing', 'Host recorded no outcome.') },
+    ],
+  },
+  {
+    id: 'h-decision',
+    n: 3,
+    question: 'Decision status',
+    options: [
+      { label: 'Approved', ...H('decision_captured', 'Decision captured: approved.') },
+      { label: 'Rejected', ...H('decision_captured', 'Decision captured: rejected.') },
+      { label: 'Revised', ...H('decision_captured', 'Decision captured: revised.') },
+      { label: 'Deferred', ...H('decision_deferred', 'Decision deferred.') },
+    ],
+  },
+  {
+    id: 'h-deferral',
+    n: 4,
+    question: 'If deferred, why?',
+    options: [
+      { label: 'Missing input', ...H('deferral_reason_selected', 'Pricing exception deferred because input was missing.') },
+      { label: 'Missing owner', ...H('deferral_reason_selected', 'Pricing exception deferred because an owner was missing.') },
+      { label: 'Stakeholder absent', ...H('deferral_reason_selected', 'Pricing exception deferred because a stakeholder was absent.') },
+      { label: 'Risk unresolved', ...H('deferral_reason_selected', 'Pricing exception deferred because a risk was unresolved.') },
+      { label: 'More analysis needed', ...H('deferral_reason_selected', 'Pricing exception deferred because more analysis was needed.') },
+      { label: 'Legal condition unresolved', ...H('deferral_reason_selected', 'Pricing exception deferred because Legal condition unresolved.') },
+      { label: 'Finance approval required', ...H('deferral_reason_selected', 'Pricing exception deferred because Finance approval was required.') },
+    ],
+  },
+  {
+    id: 'h-actions',
+    n: 5,
+    question: 'Were action owners assigned?',
+    options: [
+      { label: 'Yes', ...H('action_owner_confirmed', 'Host confirmed action owners were assigned.') },
+      { label: 'No', ...H('action_owner_confirmed', 'Host reported action owners were not assigned.') },
+      { label: 'Not needed', ...H('action_owner_confirmed', 'Host reported action owners were not needed.') },
+    ],
+  },
+  {
+    id: 'h-followup',
+    n: 6,
+    question: 'Was a follow-up meeting created?',
+    options: [
+      { label: 'Yes', ...H('follow_up_created', 'Host created a follow-up meeting.') },
+      { label: 'No', ...H('follow_up_created', 'Host created no follow-up meeting.') },
+    ],
+  },
+  {
+    id: 'h-recurrence',
+    n: 7,
+    question: 'Should this meeting recur again?',
+    options: [
+      { label: 'Keep', ...H('recurrence_reviewed', 'Host reviewed recurrence: keep.') },
+      { label: 'Shorten', ...H('recurrence_reviewed', 'Host reviewed recurrence: shorten.') },
+      { label: 'Convert async', ...H('recurrence_reviewed', 'Host reviewed recurrence: convert to async.') },
+      { label: 'Cancel', ...H('recurrence_reviewed', 'Host reviewed recurrence: cancel.') },
+    ],
+  },
+  {
+    id: 'h-livetime',
+    n: 8,
+    question: 'Was live time justified?',
+    options: [
+      { label: 'Yes', ...H('live_time_validated', 'Host validated live time as justified.') },
+      { label: 'Partially', ...H('live_time_validated', 'Host marked live time partially justified.') },
+      { label: 'No', ...H('live_time_not_justified', 'Host indicated live time was not justified.') },
+    ],
+  },
+  {
+    id: 'h-agent',
+    n: 9,
+    question: 'Could an authorized agent cover next time?',
+    options: [
+      { label: 'Yes', ...H('agent_coverage_preferred', 'Host: an authorized agent could cover next time.') },
+      { label: 'Observe only', ...H('agent_coverage_preferred', 'Host: agent may observe next time.') },
+      { label: 'Summary only', ...H('summary_only_preferred', 'Host: summary-only agent coverage next time.') },
+      { label: 'Human required', ...H('live_time_validated', 'Host: human required next time.') },
+      { label: 'Authorization blocked', ...H('live_time_validated', 'Host: agent authorization blocked next time.') },
+    ],
+  },
+]
+
+/** Attendee outcome validation — this panel is from Product's perspective. */
+export const CLOSEOUT_ATTENDEE_QUESTIONS: CloseoutQuestion[] = [
+  {
+    id: 'a-live',
+    n: 1,
+    question: 'Was your live attendance required?',
+    options: [
+      { label: 'Yes', ...H('live_time_validated', 'Product confirmed live attendance was required.') },
+      { label: 'No', ...H('live_time_not_justified', 'Product indicated live attendance was not required.') },
+      { label: 'Summary-only would have worked', ...H('summary_only_preferred', 'Product indicated summary-only would have worked.') },
+    ],
+  },
+  {
+    id: 'a-role',
+    n: 2,
+    question: 'Was your assigned role accurate?',
+    options: [
+      { label: 'Yes', ...H('attendee_role_validated', 'Product validated its assigned role.') },
+      { label: 'No', ...H('attendee_role_rejected', 'Product reported its assigned role was inaccurate.') },
+      { label: 'Partially', ...H('attendee_role_validated', 'Product reported its assigned role was partially accurate.') },
+    ],
+  },
+  {
+    id: 'a-outcome',
+    n: 3,
+    question: 'Was the meeting outcome clear?',
+    options: [
+      { label: 'Clear', ...H('outcome_clarity_confirmed', 'Product confirmed the outcome was clear.') },
+      { label: 'Partially clear', ...H('outcome_clarity_confirmed', 'Product reported the outcome was partially clear.') },
+      { label: 'Not clear', ...H('outcome_clarity_missing', 'Product reported the outcome was not clear.') },
+    ],
+  },
+  {
+    id: 'a-discussion',
+    n: 4,
+    question: 'Was live discussion necessary?',
+    options: [
+      { label: 'Yes', ...H('live_time_validated', 'Product confirmed live discussion was necessary.') },
+      { label: 'Could have been async', ...H('live_time_not_justified', 'Product indicated the discussion could have been async.') },
+      { label: 'Authorized agent could have covered', ...H('agent_coverage_preferred', 'Product indicated an authorized agent could have covered.') },
+    ],
+  },
+  {
+    id: 'a-preread',
+    n: 5,
+    question: 'Was the pre-read sufficient?',
+    options: [
+      { label: 'Yes', ...H('outcome_clarity_confirmed', 'Product confirmed the pre-read was sufficient.') },
+      { label: 'Missing', ...H('outcome_clarity_missing', 'Product reported the pre-read was missing.') },
+      { label: 'Not reviewed', ...H('outcome_clarity_missing', 'Product reported the pre-read was not reviewed.') },
+      { label: 'Not needed', ...H('outcome_clarity_confirmed', 'Product reported the pre-read was not needed.') },
+    ],
+  },
+  {
+    id: 'a-next',
+    n: 6,
+    question: 'Do you know your next action?',
+    options: [
+      { label: 'Yes', ...H('action_owner_confirmed', 'Product knows its next action.') },
+      { label: 'No', ...H('outcome_clarity_missing', 'Product does not know its next action.') },
+      { label: 'No action assigned', ...H('action_owner_confirmed', 'Product has no action assigned.') },
+    ],
+  },
+  {
+    id: 'a-again',
+    n: 7,
+    question: 'Should this meeting happen again?',
+    options: [
+      { label: 'Yes', ...H('recurrence_reviewed', 'Product recommends: keep the meeting.') },
+      { label: 'Shorter', ...H('recurrence_reviewed', 'Product recommends: shorten the meeting.') },
+      { label: 'Async', ...H('recurrence_reviewed', 'Product recommends: convert to async.') },
+      { label: 'Cancel', ...H('recurrence_reviewed', 'Product recommends: cancel the meeting.') },
+    ],
+  },
+]
+
+export const CLOSURE_SCORES: { label: string; value: string; note: string }[] = [
+  { label: 'Closure Score', value: 'Partial', note: 'The meeting produced a revised decision path but did not close Finance approval.' },
+  { label: 'Decision Closure Score', value: 'Deferred', note: 'A decision was recorded as revised, pending a Legal condition.' },
+  { label: 'Attendance Fit Score', value: 'Moderate', note: 'Required roles attended, but Product could have taken summary-only.' },
+  { label: 'Live Necessity Score', value: 'High', note: 'Customer judgment and Finance approval were required.' },
+  { label: 'Follow-Through Readiness', value: 'Moderate', note: 'Owners assigned for Legal and Finance, but next decision date is unset.' },
+  { label: 'Delegation Opportunity', value: 'Observe-only', note: 'Agent can summarize next time but cannot replace required human authority.' },
+  { label: 'False Closure Risk', value: 'Medium', note: 'Host marked partial success; two attendee signals report unclear ownership.' },
+]
+
+export const FALSE_CLOSURE = {
+  copy: 'False closure occurs when the host marks the meeting successful but attendees report unclear outcomes, inaccurate roles, or missing next actions.',
+  example:
+    'Host marked the meeting as partially achieved. Two attendee signals indicate unclear ownership. False closure risk: Medium.',
+  risk: 'Medium',
+}
+
+export const ATTENDEE_OUTCOME_SIGNALS: AttendeeOutcomeSignal[] = [
+  {
+    id: 'sig-product',
+    meetingId: 'CE-0412',
+    attendee: 'S. Patel',
+    attendeeOrg: 'Product',
+    liveAttendanceRequired: 'Summary-only would have worked',
+    assignedRoleAccurate: 'Partially',
+    outcomeClear: 'Partially clear',
+    liveDiscussionNecessary: 'Authorized agent could have covered',
+    preReadSufficient: 'Not needed',
+    nextActionKnown: 'No action assigned',
+    nextMeetingRecommendation: 'Async',
+    agentCouldCoverNextTime: 'Summary only',
+  },
+  {
+    id: 'sig-cs',
+    meetingId: 'CE-0412',
+    attendee: 'L. Nguyen',
+    attendeeOrg: 'Customer Success',
+    liveAttendanceRequired: 'Yes',
+    assignedRoleAccurate: 'Yes',
+    outcomeClear: 'Not clear',
+    liveDiscussionNecessary: 'Yes',
+    preReadSufficient: 'Missing',
+    nextActionKnown: 'No',
+    nextMeetingRecommendation: 'Shorter',
+    agentCouldCoverNextTime: 'Human required',
+  },
+]
+
+export const MEETING_CLOSEOUT: MeetingCloseout = {
+  id: 'close-ce-0412',
+  meetingId: 'CE-0412',
+  host: 'Finance Director',
+  hostOrg: 'Finance',
+  requiredOutputAchieved: 'Partially',
+  outcomeStatus: 'Decision deferred',
+  decisionStatus: 'Revised',
+  deferralReason: 'Legal condition unresolved',
+  actionOwnersAssigned: 'Yes',
+  followUpCreated: true,
+  recurrenceRecommendation: 'Keep',
+  liveTimeJustified: 'Yes',
+  agentNextTimeRecommendation: 'Observe only',
+  closureScore: 'Partial',
+  decisionClosureScore: 'Deferred',
+  followThroughReadinessScore: 'Moderate',
+  falseClosureRisk: 'Medium',
+}
+
+export const CLOSEOUT_RECEIPTS: EventReceipt[] = [
+  { id: 'c-1', timestamp: '2026-07-06 10:40', source: 'closeout', eventType: 'host_closeout_started', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Sales', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Host started closeout for Pricing Exception Review.', elapsedTime: '—', evidenceLabel: 'Closeout · Started' },
+  { id: 'c-2', timestamp: '2026-07-06 10:41', source: 'closeout', eventType: 'required_output_confirmed', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Sales', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Host marked the required output partially achieved.', elapsedTime: '—', evidenceLabel: 'Closeout · Output' },
+  { id: 'c-3', timestamp: '2026-07-06 10:41', source: 'closeout', eventType: 'decision_deferred', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Legal', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Host deferred the decision.', elapsedTime: '—', evidenceLabel: 'Closeout · Decision' },
+  { id: 'c-4', timestamp: '2026-07-06 10:42', source: 'closeout', eventType: 'deferral_reason_selected', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Legal', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Pricing exception deferred because Legal condition unresolved.', elapsedTime: '—', evidenceLabel: 'Closeout · Deferral' },
+  { id: 'c-5', timestamp: '2026-07-06 10:43', source: 'closeout', eventType: 'action_owner_confirmed', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Legal', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Host confirmed action owners were assigned.', elapsedTime: '—', evidenceLabel: 'Closeout · Actions' },
+  { id: 'c-6', timestamp: '2026-07-06 10:43', source: 'closeout', eventType: 'live_time_validated', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Sales', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Host validated live time as justified.', elapsedTime: '—', evidenceLabel: 'Closeout · Live time' },
+  { id: 'c-7', timestamp: '2026-07-06 10:45', source: 'closeout', eventType: 'summary_only_preferred', actor: 'S. Patel', actorOrg: 'Product', targetOrg: 'Finance', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Product indicated summary-only would have worked.', elapsedTime: '—', evidenceLabel: 'Closeout · Attendee' },
+  { id: 'c-8', timestamp: '2026-07-06 10:46', source: 'closeout', eventType: 'outcome_clarity_missing', actor: 'L. Nguyen', actorOrg: 'Customer Success', targetOrg: 'Finance', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Customer Success reported the outcome was not clear.', elapsedTime: '—', evidenceLabel: 'Closeout · Attendee' },
+  { id: 'c-9', timestamp: '2026-07-06 10:47', source: 'closeout', eventType: 'false_closure_detected', actor: 'System', actorOrg: 'MeetingOS', targetOrg: 'Finance', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Partial host success with two unclear attendee signals; false closure risk Medium.', elapsedTime: '—', evidenceLabel: 'Closeout · Risk' },
+  { id: 'c-10', timestamp: '2026-07-06 10:48', source: 'closeout', eventType: 'meeting_closed', actor: 'Finance Director', actorOrg: 'Finance', targetOrg: 'Sales', meetingId: 'CE-0412', decisionType: 'Pricing exception', workflowType: 'Live decision review', description: 'Meeting closed with a validated, deferred outcome.', elapsedTime: '—', evidenceLabel: 'Closeout · Closed' },
 ]
 
 // ===========================================================================

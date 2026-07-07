@@ -24,6 +24,7 @@ export const NAV: NavItem[] = [
   { id: 'attendee', label: 'Review Invite', note: 'Validate live attendance' },
   { id: 'org-cards', label: 'Org Cards', note: 'What each org owns' },
   { id: 'decision-room', label: 'Decision Room', note: 'Govern the decision' },
+  { id: 'closeout', label: 'Closeout', note: 'Validate the outcome' },
   { id: 'agents', label: 'Agents', note: 'Represented coverage' },
   { id: 'capture', label: 'Structured Capture', note: 'The evidence ledger' },
   { id: 'work-map', label: 'Work Map', note: 'How work actually moves' },

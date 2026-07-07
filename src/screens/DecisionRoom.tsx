@@ -4,6 +4,7 @@ import { Kicker, SectionHeader, ContractBlock, ModeratorPanel } from '../compone
 import { GuidanceHint } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
 import { PRICING_CONTRACT } from '../data/mock'
+import type { ViewId } from '../types'
 
 const EVIDENCE = [
   { item: 'Margin model', detail: 'Current vs. proposed exception margin.' },
@@ -45,7 +46,7 @@ const CLOSE_REQUIREMENTS: { key: string; label: ReactNode }[] = [
   { key: 'followup', label: 'Follow-up destination' },
 ]
 
-export function DecisionRoom() {
+export function DecisionRoom({ navigate }: { navigate: (v: ViewId) => void }) {
   const [decision, setDecision] = useState('Revised')
 
   return (
@@ -188,9 +189,16 @@ export function DecisionRoom() {
                 </div>
               ))}
             </div>
-            <div className="mod-foot">
+            <div className="mod-foot stack-8">
               <button className="btn btn-solid btn-sm" style={{ width: '100%' }}>
                 Close &amp; Record Decision
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ width: '100%' }}
+                onClick={() => navigate('closeout')}
+              >
+                Open Meeting Closeout
               </button>
             </div>
           </aside>

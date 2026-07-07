@@ -11,6 +11,7 @@ import { StructuredCapture } from './screens/StructuredCapture'
 import { WorkMap } from './screens/WorkMap'
 import { ExecutiveReview } from './screens/ExecutiveReview'
 import { AttendeeView } from './screens/AttendeeView'
+import { MeetingCloseout } from './screens/MeetingCloseout'
 
 /**
  * Internal view router. Deliberately dependency-free — a single view-state
@@ -39,7 +40,9 @@ function renderView(view: ViewId, navigate: (v: ViewId) => void) {
     case 'org-cards':
       return <OrgCards />
     case 'decision-room':
-      return <DecisionRoom />
+      return <DecisionRoom navigate={navigate} />
+    case 'closeout':
+      return <MeetingCloseout />
     case 'agents':
       return <Agents />
     case 'capture':
