@@ -1194,17 +1194,24 @@ export const SCORECARDS: RelationshipScorecard[] = [
   },
 ]
 
-/** Executive interpretation for each selected scorecard. */
+/** Executive interpretation (operational reading) for each selected scorecard. */
 export const SCORECARD_READINGS: Record<string, string> = {
   'sc-sales-legal':
-    'The scorecard shows high cross-org time, slow resolution, frequent deferral, and repeated missing pre-read issues. This is an operating model problem, not a note-taking problem.',
+    'The Sales–Legal edge is where cross-org time is concentrating. The relationship is both high-volume and slow. This is the primary operating finding, drawn from receipts rather than interviews.',
   'sc-sales-eng':
-    'Fast, async-first, and low-escalation. The scorecard shows a healthy operating pattern that needs no intervention.',
+    'The Sales–Engineering edge is healthy. It is modest in volume, resolves quickly, and remains async-first. Leave this workflow alone.',
   'sc-legal-finance':
-    'Volume is low but escalation is high. This suggests input ambiguity, unclear decision rights, or a trust gap.',
+    'For Legal–Finance, volume is low but escalation is high. That suggests a broken input definition, unclear decision rights, or a trust gap. This is the strongest Phase 2 governed delegation target.',
   'sc-sales-finance':
-    'Absence is a finding, but not a conclusion. Validate whether the relationship is intentionally absent or being bypassed.',
+    'The missing Sales–Finance edge is not a conclusion. It is a question: is Finance intentionally separated, or are pricing decisions happening outside the expected governance path?',
 }
+
+/** Quarterly redraw targets — the intervention proof for next quarter. */
+export const REDRAW_TARGETS: { label: string; value: string }[] = [
+  { label: 'Sales ↔ Legal', value: 'Reduce joint live hours from 38 to 24' },
+  { label: 'Legal ↔ Finance', value: 'Reduce live escalation from 75% to 35%' },
+  { label: 'Sales ↔ Engineering', value: 'Maintain async resolution above 80%' },
+]
 
 /** From evidence to action — how each scorecard links to the operating layers. */
 export const SCORECARD_LINKAGE: Record<

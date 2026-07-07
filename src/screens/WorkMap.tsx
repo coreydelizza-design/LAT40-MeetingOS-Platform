@@ -7,10 +7,10 @@ import {
   GRAPH_EDGES,
   SCORECARDS,
   EVENT_RECEIPTS,
-  OPERATIONAL_READINGS,
   OPERATIONAL_INTERVENTIONS,
   SCORECARD_READINGS,
   SCORECARD_LINKAGE,
+  REDRAW_TARGETS,
 } from '../data/mock'
 import type { HealthState, RelationshipScorecard, EventReceipt } from '../types'
 
@@ -79,6 +79,10 @@ export function WorkMap() {
 
       {/* 1 — Claimed vs Measured */}
       <SectionHeader title="Claimed vs Measured" aside="Structure said vs. operating reality" />
+      <p className="muted" style={{ maxWidth: '74ch', marginBottom: 24, fontSize: 13.5 }}>
+        The distance between the claimed model and the measured model is not a reporting error. It
+        is the operating gap — and closing it is a consulting engagement, not a dashboard toggle.
+      </p>
       <div className="grid-2">
         <div>
           <div className="label" style={{ marginBottom: 8 }}>
@@ -175,12 +179,13 @@ export function WorkMap() {
         <table className="exec-table">
           <thead>
             <tr>
-              <th style={{ width: '128px' }}>Timestamp</th>
+              <th style={{ width: '118px' }}>Timestamp</th>
               <th>Source</th>
               <th>Actor org</th>
+              <th>Target org</th>
               <th>Event type</th>
               <th>Evidence</th>
-              <th style={{ width: '30%' }}>Description</th>
+              <th style={{ width: '26%' }}>Description</th>
             </tr>
           </thead>
           <tbody>
@@ -191,6 +196,7 @@ export function WorkMap() {
                 </td>
                 <td>{SOURCE_TEXT[r.source]}</td>
                 <td className="muted">{r.actorOrg}</td>
+                <td className="muted">{r.targetOrg}</td>
                 <td className="strong" style={{ fontSize: 13 }}>
                   {r.eventType}
                 </td>
@@ -211,8 +217,8 @@ export function WorkMap() {
         </div>
       )}
 
-      {/* 4 — Scorecard Reading (selected) */}
-      <SectionHeader title="Scorecard Reading" aside={selected.relationshipLabel} />
+      {/* 4 — Operational Reading (per selected edge) */}
+      <SectionHeader title="Operational Reading" aside="Drawn from receipts, not interviews" />
       <div className="work-card" style={{ borderColor: 'var(--line-ink)' }}>
         <p className="serif" style={{ fontSize: 17, lineHeight: 1.5, color: 'var(--graphite)' }}>
           {SCORECARD_READINGS[selected.id]}
@@ -240,26 +246,6 @@ export function WorkMap() {
         ]}
       />
 
-      {/* Operational Reading — cross-edge synthesis */}
-      <SectionHeader title="Operational Reading" aside="Drawn from receipts, not interviews" />
-      <div className="stack-16">
-        {OPERATIONAL_READINGS.map((r, i) => (
-          <p
-            key={i}
-            className="serif"
-            style={{
-              fontSize: 17,
-              lineHeight: 1.5,
-              paddingLeft: 18,
-              borderLeft: '2px solid var(--ink)',
-              color: 'var(--graphite)',
-            }}
-          >
-            {r}
-          </p>
-        ))}
-      </div>
-
       {/* 5 — Recommended Interventions */}
       <SectionHeader title="Recommended Interventions" />
       <div className="ledger">
@@ -286,6 +272,34 @@ export function WorkMap() {
       <div className="big-statement" style={{ fontSize: 20 }}>
         Each quarter, the graph is redrawn from new scorecards. Edges should become thinner, faster,
         and less escalation-heavy where interventions worked.
+      </div>
+      <div className="label" style={{ margin: '28px 0 12px' }}>
+        Targets for next redraw
+      </div>
+      <div className="ledger">
+        {REDRAW_TARGETS.map((t) => (
+          <div className="ledger-row" key={t.label} style={{ gridTemplateColumns: '200px 1fr' }}>
+            <span className="primary" style={{ fontWeight: 500 }}>
+              {t.label}
+            </span>
+            <span className="secondary">{t.value}</span>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="serif"
+        style={{
+          fontSize: 19,
+          lineHeight: 1.45,
+          padding: '24px 0 4px',
+          marginTop: 40,
+          borderTop: '1px solid var(--line-ink)',
+          maxWidth: '72ch',
+        }}
+      >
+        MeetingOS does not turn meetings into recaps. It turns meeting behavior into auditable
+        operating evidence.
       </div>
     </div>
   )
