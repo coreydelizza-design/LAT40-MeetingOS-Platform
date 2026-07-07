@@ -50,9 +50,10 @@ The full design system lives in `src/styles/global.css`.
 
 ### Stack
 
-- **Vite + React + TypeScript** — no UI library, no router library, no chart library, no icon pack.
+- **Vite 8 + React 18 + TypeScript (strict)** — no UI library, no router library, no chart library, no icon pack.
 - Routing is a dependency-free internal view-state switch (`src/App.tsx`).
-- Runtime dependencies: `react`, `react-dom` only.
+- Runtime dependencies: `react`, `react-dom`, and `serve` (static file server for production) only.
+- Requires **Node ≥ 20.19** (Vite 8 engine requirement).
 
 ### Project structure
 
@@ -106,21 +107,18 @@ npm run dev        # http://localhost:5173
 Other scripts:
 
 ```bash
-npm run build      # tsc typecheck + vite production build → dist/
-npm run preview    # serve the production build locally
-npm run typecheck  # type check only
+npm run build              # tsc typecheck + vite production build → dist/
+npx serve -s dist -l 4173  # serve the production build locally (same as prod)
+npm run typecheck          # type check only
 ```
 
 ## Railway deployment
 
-MeetingOS is a static frontend served by `vite preview`. No environment variables are required.
+MeetingOS is a static frontend. `vite build` emits `dist/`, which is served in production by the `serve` package — a static file server, not a dev/preview server. No environment variables are required.
 
-- **Build command:** `npm run build`
-- **Start command:** `npm run start` → `vite preview --host 0.0.0.0 --port $PORT`
-- Config is declared in `railway.json`; `vite.config.ts` sets `preview.allowedHosts: true` so the `*.railway.app` domain passes the host check.
+- **Build command:** `npm run build` → `tsc && vite build` → `dist/`
+- **Start command:** `npm run start` → `serve -s dist -l ${PORT:-4173}`
+  - `-s` enables SPA fallback (all routes serve `index.html`); `-l` binds Railway's injected `$PORT`.
+- Config is declared in `railway.json` (Nixpacks builder). `vite.config.ts` has **no `preview` block and no `allowedHosts`** — host-header validation is not bypassed anywhere.
 
 Railway builds from the connected GitHub repo. Push to the default branch and Railway will build and deploy automatically.
-
-### Known advisory
-
-`npm audit` reports the esbuild dev-server advisory (GHSA-67mh-4wv8-2f99, moderate) via Vite. It affects **only the local `vite dev` server**, never the production `vite preview` build served on Railway. The only remediation is a major Vite upgrade, intentionally deferred for this mock-data build.
