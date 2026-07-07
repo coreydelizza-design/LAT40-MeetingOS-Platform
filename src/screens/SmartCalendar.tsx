@@ -3,7 +3,7 @@ import type { ReactNode, MouseEvent } from 'react'
 import { Kicker, SectionHeader, StatusLabel, ModeratorPanel } from '../components/primitives'
 import { GuidanceHint, type GuidanceCopy } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
-import { MEETINGS } from '../data/mock'
+import { MEETINGS, CALENDAR_DELEGATION_LINES } from '../data/mock'
 import type { Meeting, MeetingState, ViewId } from '../types'
 
 const STATE_GUIDE: Record<MeetingState, GuidanceCopy> = {
@@ -105,6 +105,7 @@ function TimeBlock({
   navigate: (v: ViewId) => void
 }) {
   const verb = BLOCK_VERB[meeting.id]
+  const delegationLine = CALENDAR_DELEGATION_LINES[meeting.id]
   const stop = (fn: () => void) => (e: MouseEvent) => {
     e.stopPropagation()
     fn()
@@ -143,6 +144,16 @@ function TimeBlock({
           />
           <Field label="Est. cost" value={meeting.estimatedCost} />
         </div>
+        {delegationLine ? (
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
+            <span className="label" style={{ marginRight: 8 }}>
+              Delegation
+            </span>
+            <span className="muted" style={{ fontSize: 13 }}>
+              {delegationLine}
+            </span>
+          </div>
+        ) : null}
         {meeting.state !== 'FOCUS PROTECTED' ? (
           <div className="row" style={{ marginTop: 14, gap: 8 }}>
             <button

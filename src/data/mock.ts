@@ -2025,6 +2025,14 @@ export const AGENT_AUTHORIZATIONS: AgentAuthorization[] = [
   },
 ]
 
+/** Exact governed delegation phrasing shown on each Smart Calendar block. */
+export const CALENDAR_DELEGATION_LINES: Record<string, string> = {
+  'mtg-launch-checkpoint': 'Authorization available — summary-only agent coverage recommended.',
+  'mtg-pricing-exception': 'Human required — agent may observe only.',
+  'mtg-escalation-room': 'Human required — delegation blocked.',
+  'mtg-status-sync': 'Authorization available — observe-only agent coverage recommended.',
+}
+
 /** Example delegation-lifecycle receipts across the governed authorization flow. */
 export const DELEGATION_RECEIPTS: EventReceipt[] = [
   {
