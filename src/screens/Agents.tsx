@@ -11,6 +11,7 @@ import {
   AUTHORITY_BOUNDARY_COPY,
   DELEGATION_PRINCIPLE,
   DELEGATION_STRATEGY,
+  DELEGATION_RECEIPTS,
 } from '../data/mock'
 import type { Agent, AgentAuthorization } from '../types'
 
@@ -205,6 +206,32 @@ export function Agents() {
       <div className="big-statement" style={{ fontSize: 18 }}>
         {AUTHORITY_BOUNDARY_COPY}
       </div>
+
+      <SectionHeader title="Delegation Receipts" aside="The authorization lifecycle" />
+      <table className="exec-table">
+        <thead>
+          <tr>
+            <th>Event type</th>
+            <th>Source</th>
+            <th>Actor org</th>
+            <th style={{ width: '46%' }}>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {DELEGATION_RECEIPTS.map((r) => (
+            <tr key={r.id}>
+              <td className="strong" style={{ fontSize: 13 }}>
+                {r.eventType}
+              </td>
+              <td className="muted" style={{ fontSize: 12.5 }}>
+                {r.source}
+              </td>
+              <td className="muted">{r.actorOrg}</td>
+              <td>{r.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <SectionHeader title="Governance Rules" aside="Non-negotiable" />
       <div className="grid-3">
