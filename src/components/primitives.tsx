@@ -49,7 +49,7 @@ export function StatusLabel({ state }: { state: MeetingState }) {
         ? 'protected'
         : state === 'ASYNC RECOMMENDED'
           ? 'async'
-          : state === 'AGENT CAN COVER'
+          : state === 'AUTHORIZATION AVAILABLE'
             ? 'agent'
             : ''
   return <span className={`status ${cls}`}>{state}</span>

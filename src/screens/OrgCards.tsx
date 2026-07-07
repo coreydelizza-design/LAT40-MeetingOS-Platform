@@ -84,7 +84,7 @@ function OrgDetail({ org }: { org: OrgCard }) {
       <SectionHeader title="Meetings This Org Should Attend" />
       <div className="grid-2">
         <MeetingClass label="Required live" items={org.meetingsToAttend.requiredLive} strong />
-        <MeetingClass label="Agent can cover" items={org.meetingsToAttend.agentCanCover} />
+        <MeetingClass label="Authorized coverage" items={org.meetingsToAttend.agentCanCover} />
         <MeetingClass label="Summary only" items={org.meetingsToAttend.summaryOnly} />
         <MeetingClass label="Not relevant" items={org.meetingsToAttend.notRelevant} muted />
       </div>

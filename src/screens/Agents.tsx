@@ -1,10 +1,49 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Kicker, SectionHeader, BulletList } from '../components/primitives'
+import { Kicker, SectionHeader, BulletList, KVPanel } from '../components/primitives'
 import { GuidanceHint, type GuidanceCopy } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
-import { AGENTS, ORG_SUMMARIES } from '../data/mock'
-import type { Agent } from '../types'
+import {
+  AGENTS,
+  ORG_SUMMARIES,
+  AGENT_AUTHORIZATIONS,
+  GOVERNED_DELEGATION,
+  AUTHORITY_BOUNDARY_COPY,
+  DELEGATION_PRINCIPLE,
+  DELEGATION_STRATEGY,
+} from '../data/mock'
+import type { Agent, AgentAuthorization } from '../types'
+
+const SCOPE_TEXT: Record<string, string> = {
+  observe: 'Observe',
+  summarize: 'Summarize',
+  represent_context: 'Represent context',
+  answer_from_approved_knowledge: 'Answer from approved knowledge',
+  escalate_only: 'Escalate only',
+  none: 'None',
+}
+
+function authStatusDisplay(a: AgentAuthorization): { text: string; cls: string } {
+  switch (a.authorizationStatus) {
+    case 'authorized':
+      return {
+        text: a.delegationScope === 'summarize' ? 'Authorized — summary-only' : 'Authorized to observe',
+        cls: '',
+      }
+    case 'human_required':
+      return { text: 'Human required — observe only', cls: 'critical' }
+    case 'blocked':
+      return { text: 'Authorization blocked', cls: 'health-missing' }
+    case 'observe_only':
+      return { text: 'Observe only', cls: '' }
+    case 'summary_only':
+      return { text: 'Summary-only', cls: '' }
+    default:
+      return { text: a.authorizationStatus, cls: '' }
+  }
+}
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 const MODE_GUIDE: Record<string, GuidanceCopy> = {
   'Listen Mode': GUIDANCE.listen_mode,
@@ -39,8 +78,18 @@ export function Agents() {
       <header className="page-head">
         <Kicker>Representation Layer</Kicker>
         <h1 className="display">Agents</h1>
-        <p className="thesis">Agents extend coverage. They do not replace accountability.</p>
+        <p className="thesis">
+          Agents extend coverage only through governed delegation. They do not replace
+          accountability.
+        </p>
       </header>
+
+      <div className="big-statement" style={{ fontSize: 20, marginBottom: 16 }}>
+        {DELEGATION_PRINCIPLE}
+      </div>
+      <p className="muted" style={{ maxWidth: '72ch', marginBottom: 40 }}>
+        {DELEGATION_STRATEGY}
+      </p>
 
       <div className="canvas-split" style={{ gridTemplateColumns: '260px 1fr', gap: 40 }}>
         <div className="stack-24">
@@ -83,6 +132,78 @@ export function Agents() {
         </div>
 
         <AgentDetail agent={selected} summary={summary} />
+      </div>
+
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.governed_delegation} underline={false}>
+            Governed Delegation
+          </GuidanceHint>
+        }
+        aside="Consented · bounded · auditable"
+      />
+      <KVPanel rows={GOVERNED_DELEGATION.map((r) => ({ k: r.k, v: r.v }))} />
+
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.authorized_agent_coverage} underline={false}>
+            Authorized Coverage Examples
+          </GuidanceHint>
+        }
+        aside="Supported by receipts"
+      />
+      <table className="exec-table">
+        <thead>
+          <tr>
+            <th style={{ width: '34%' }}>Meeting</th>
+            <th>Authorization</th>
+            <th>Scope</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          {AGENT_AUTHORIZATIONS.map((a) => {
+            const s = authStatusDisplay(a)
+            const highRisk = a.riskLevel === 'restricted' || a.riskLevel === 'high'
+            return (
+              <tr key={a.id}>
+                <td>
+                  <div className="strong">{a.meetingTitle}</div>
+                  <div className="muted" style={{ fontSize: 12.5, marginTop: 4 }}>
+                    {a.reason}
+                  </div>
+                </td>
+                <td>
+                  <span className={`status ${s.cls}`}>{s.text}</span>
+                </td>
+                <td className="muted">{SCOPE_TEXT[a.delegationScope]}</td>
+                <td>
+                  <span className={`status ${highRisk ? 'critical' : ''}`}>
+                    {capitalize(a.riskLevel)}
+                  </span>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+      <div className="stack-8" style={{ marginTop: 16 }}>
+        {AGENT_AUTHORIZATIONS.map((a) => (
+          <div className="receipt-line" key={a.id}>
+            {a.receiptDescription}
+          </div>
+        ))}
+      </div>
+
+      <SectionHeader
+        title={
+          <GuidanceHint {...GUIDANCE.authority_boundary} underline={false}>
+            Authority Boundary
+          </GuidanceHint>
+        }
+      />
+      <div className="big-statement" style={{ fontSize: 18 }}>
+        {AUTHORITY_BOUNDARY_COPY}
       </div>
 
       <SectionHeader title="Governance Rules" aside="Non-negotiable" />
@@ -141,7 +262,7 @@ function AgentDetail({
         </div>
       </div>
 
-      <SectionHeader title="Meetings Agent Can Cover" />
+      <SectionHeader title="Authorized Coverage" aside="Under this agent's delegation" />
       <table className="exec-table">
         <tbody>
           {agent.allowedMeetings.map((m) => (

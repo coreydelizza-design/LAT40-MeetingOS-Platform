@@ -19,6 +19,7 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
   const [actionKey, setActionKey] = useState<string | null>(null)
   const [challenge, setChallenge] = useState<string | null>(null)
   const [agent, setAgent] = useState<string | null>(null)
+  const [consent, setConsent] = useState(false)
 
   const action = ATTENDANCE_ACTIONS.find((a) => a.key === actionKey) ?? null
   const challengeOpt = CHALLENGE_OPTIONS.find((c) => c.label === challenge) ?? null
@@ -121,7 +122,7 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
                   if (a.key !== 'challenge') setChallenge(null)
                 }}
               >
-                {a.key === 'summary_only' ? (
+                {a.key === 'authorize_summary' ? (
                   <GuidanceHint {...GUIDANCE.summary_only} underline={false}>
                     {a.label}
                   </GuidanceHint>
@@ -223,6 +224,47 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
               <span className="status critical">{AGENT_RECOMMENDED}</span>
             </div>
           </div>
+
+          {/* Delegation Authorization */}
+          <SectionHeader
+            title={
+              <GuidanceHint {...GUIDANCE.governed_delegation} underline={false}>
+                Delegation Authorization
+              </GuidanceHint>
+            }
+            aside="Consented · bounded"
+          />
+          <KVPanel
+            rows={[
+              { k: 'Assigned role', v: ATTENDEE.role },
+              { k: 'Delegation recommendation', v: 'Human required — agent may observe only' },
+              { k: 'Risk level', v: 'Restricted' },
+              { k: 'Allowed scope', v: 'Observe' },
+              {
+                k: 'Authority boundary',
+                v: 'Agent may observe and summarize, but cannot approve, negotiate, or commit.',
+              },
+            ]}
+          />
+          <div className="row" style={{ marginTop: 16, gap: 12 }}>
+            <button
+              className={`chip${consent ? ' selected' : ''}`}
+              aria-pressed={consent}
+              onClick={() => setConsent((v) => !v)}
+            >
+              {consent ? 'Consent captured' : 'Capture consent'}
+            </button>
+            <span className="faint" style={{ fontSize: 12.5 }}>
+              Delegation requires consent before an agent is authorized.
+            </span>
+          </div>
+          {consent ? (
+            <div className="receipt-line" style={{ marginTop: 16 }}>
+              Receipt created: attendee_view · agent_authorization_granted · Sales authorized
+              observe-only agent coverage for Pricing Exception Review under restricted delegation
+              boundary.
+            </div>
+          ) : null}
 
           {/* 6 — Receipt Preview */}
           <SectionHeader

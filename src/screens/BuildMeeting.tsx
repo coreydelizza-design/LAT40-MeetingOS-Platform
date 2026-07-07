@@ -62,7 +62,7 @@ const RECOMMENDATION_TYPES = [
   'Reduce attendees',
   'Convert to async',
   'Create decision workflow',
-  'Send agent instead',
+  'Authorize agent coverage',
   'Require pre-read',
   'Merge with existing meeting',
   'Do not schedule',

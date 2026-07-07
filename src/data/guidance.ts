@@ -17,8 +17,8 @@ export const GUIDANCE = {
   agent_coverage: {
     title: 'Agent Coverage',
     description:
-      'Meetings where the employee or org can stay informed without attending live. The agent captures relevant decisions, risks, actions, and dependencies.',
-    action: 'Send your org agent instead of attending live.',
+      'Agent coverage is allowed only when the attendee or org authorizes it and the meeting pattern supports safe delegation.',
+    action: 'Authorize coverage under delegation rules — it is not automatic.',
   },
   decisions_pending: {
     title: 'Decisions Pending',
@@ -59,10 +59,10 @@ export const GUIDANCE = {
     action: 'Attend with the pre-read and close the decision.',
   },
   agent_can_cover: {
-    title: 'Agent Can Cover',
+    title: 'Authorization Available',
     description:
-      'The meeting is relevant for awareness but does not require the employee’s live judgment. An agent can attend and summarize what matters.',
-    action: 'Send an agent and read the summary.',
+      'The meeting pattern supports safe delegation. An agent may be authorized to observe or summarize once the attendee consents.',
+    action: 'Authorize agent coverage under delegation rules.',
   },
   focus_protected: {
     title: 'Focus Protected',
@@ -181,8 +181,26 @@ export const GUIDANCE = {
   authority_boundary: {
     title: 'Authority Boundary',
     description:
-      'The explicit limit on what the agent can and cannot do. This prevents agents from approving, negotiating, or committing beyond permission.',
-    action: 'Check the boundary before delegating to an agent.',
+      'The explicit limit on what the agent can do. It prevents the agent from approving, negotiating, committing, or representing opinion as policy.',
+    action: 'Check the boundary before authorizing an agent.',
+  },
+  governed_delegation: {
+    title: 'Governed Delegation',
+    description:
+      'Delegation is the consented authority for an agent to observe, summarize, or represent approved context. It is bounded by role, risk, meeting type, and escalation rules.',
+    action: 'Authorize only within the delegation rules.',
+  },
+  authorized_agent_coverage: {
+    title: 'Authorized Agent Coverage',
+    description:
+      'Agent coverage is allowed only when the attendee or org authorizes it and the meeting pattern supports safe delegation.',
+    action: 'Confirm consent and boundary before coverage.',
+  },
+  human_required: {
+    title: 'Human Required',
+    description:
+      'The meeting requires live human judgment, authority, trust, negotiation, or customer context. An agent may observe only if allowed.',
+    action: 'Attend yourself; authorize observe-only at most.',
   },
 
   // --- Decision Room ---

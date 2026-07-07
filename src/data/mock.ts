@@ -38,7 +38,7 @@ export const MEETINGS: Meeting[] = [
     purpose: 'Circulate weekly execution status across functions.',
     requiredOutput: 'Written update',
     attendeeRole: 'Optional Reviewer',
-    agentEligibility: 'Agent recommended',
+    agentEligibility: 'Authorized to observe',
     meetingValue: 'Low',
     readinessScore: 41,
     necessityScore: 28,
@@ -55,7 +55,7 @@ export const MEETINGS: Meeting[] = [
     purpose: 'Rule on a non-standard customer pricing exception.',
     requiredOutput: 'Approve, reject, or revise exception',
     attendeeRole: 'Required Contributor',
-    agentEligibility: 'Human required, agent observes',
+    agentEligibility: 'Human required, agent may observe',
     meetingValue: 'High',
     readinessScore: 88,
     necessityScore: 92,
@@ -68,11 +68,11 @@ export const MEETINGS: Meeting[] = [
     time: '11:30',
     duration: '30 min',
     meetingType: 'Cross-functional update',
-    state: 'AGENT CAN COVER',
+    state: 'AUTHORIZATION AVAILABLE',
     purpose: 'Confirm launch readiness across dependent functions.',
     requiredOutput: 'Risk and dependency summary',
     attendeeRole: 'Informed Only',
-    agentEligibility: 'Agent can attend',
+    agentEligibility: 'Authorized summary-only',
     meetingValue: 'Medium',
     readinessScore: 64,
     necessityScore: 55,
@@ -389,10 +389,10 @@ export const AGENTS: Agent[] = [
     ],
     summaryFormat: 'Decisions, risks, actions, dependencies',
     allowedMeetings: [
-      { meeting: 'Product Launch Checkpoint', coverage: 'Agent can cover' },
-      { meeting: 'Weekly Status Sync', coverage: 'Agent recommended' },
-      { meeting: 'Pricing Exception Review', coverage: 'Human required, agent observes' },
-      { meeting: 'Customer Escalation Room', coverage: 'Human required' },
+      { meeting: 'Product Launch Checkpoint', coverage: 'Authorized summary-only' },
+      { meeting: 'Weekly Status Sync', coverage: 'Authorized to observe' },
+      { meeting: 'Pricing Exception Review', coverage: 'Human required; agent may observe' },
+      { meeting: 'Customer Escalation Room', coverage: 'Human required; delegation blocked' },
     ],
   },
   {
@@ -406,8 +406,8 @@ export const AGENTS: Agent[] = [
     escalatesWhen: ['Release clearance blocked', 'Launch date at risk'],
     summaryFormat: 'Decisions, risks, dependencies',
     allowedMeetings: [
-      { meeting: 'Product Launch Checkpoint', coverage: 'Agent can cover' },
-      { meeting: 'Weekly Status Sync', coverage: 'Agent recommended' },
+      { meeting: 'Product Launch Checkpoint', coverage: 'Authorized summary-only' },
+      { meeting: 'Weekly Status Sync', coverage: 'Authorized to observe' },
     ],
   },
   {
@@ -421,8 +421,8 @@ export const AGENTS: Agent[] = [
     escalatesWhen: ['Decision lacks an owner', 'Bottleneck exceeds threshold'],
     summaryFormat: 'Executive brief: decisions, risk, escalations',
     allowedMeetings: [
-      { meeting: 'Pricing Exception Review', coverage: 'Human required, agent observes' },
-      { meeting: 'Customer Escalation Room', coverage: 'Human required' },
+      { meeting: 'Pricing Exception Review', coverage: 'Human required; agent may observe' },
+      { meeting: 'Customer Escalation Room', coverage: 'Human required; delegation blocked' },
     ],
   },
 ]
@@ -684,7 +684,7 @@ export const ALIGNMENT_SUMMARY: {
   foot: string
 }[] = [
   { label: 'Live Required', figure: '2', foot: 'meetings require human judgment' },
-  { label: 'Agent Coverage', figure: '2', foot: 'meetings can be covered by agent' },
+  { label: 'Agent Coverage', figure: '2', foot: 'meetings with authorized agent coverage' },
   { label: 'Decisions Pending', figure: '3', foot: 'decisions need input or ownership' },
   { label: 'Structure Needed', figure: '1', foot: 'meeting lacks a defined outcome' },
   { label: 'Recoverable Time', figure: '90', unit: 'min', foot: 'may be reclaimed today' },
@@ -706,9 +706,9 @@ export const JUDGMENT_MEETINGS: {
   },
   {
     title: 'Product Launch Checkpoint',
-    judgment: 'Agent can cover',
+    judgment: 'Authorization available',
     role: 'Informed only',
-    action: 'Send org agent',
+    action: 'Authorize agent',
     impact: 'Recover 30 min',
   },
   {
@@ -754,10 +754,10 @@ export const ORG_IMPACT = {
 }
 
 export const AGENT_COVERAGE_TODAY: { meeting: string; coverage: string }[] = [
-  { meeting: 'Product Launch Checkpoint', coverage: 'Team agent can attend' },
-  { meeting: 'Weekly Status Sync', coverage: 'Agent recommended' },
-  { meeting: 'Pricing Exception Review', coverage: 'Human required; agent observes' },
-  { meeting: 'Customer Escalation Room', coverage: 'Human required' },
+  { meeting: 'Product Launch Checkpoint', coverage: 'Authorized summary-only' },
+  { meeting: 'Weekly Status Sync', coverage: 'Authorized to observe' },
+  { meeting: 'Pricing Exception Review', coverage: 'Human required; agent may observe' },
+  { meeting: 'Customer Escalation Room', coverage: 'Human required; delegation blocked' },
 ]
 
 export const DECISION_QUEUE: {
@@ -810,6 +810,7 @@ import type {
   EventReceipt,
   RelationshipScorecard,
   ClaimedRelationship,
+  AgentAuthorization,
 } from '../types'
 
 // --- Layer 1: Event Receipts (the factual log) -----------------------------
@@ -1092,7 +1093,7 @@ export const SCORECARDS: RelationshipScorecard[] = [
       '5 meetings missing required pre-read',
     ],
     recommendedIntervention:
-      'Require contract exception pre-read and decision owner before live review. Deploy Legal intake agent for first-pass validation.',
+      'Require contract exception pre-read and decision owner before live review. Deploy Legal intake agent only for first-pass validation under governed delegation rules; human approval remains required for non-standard terms.',
     healthState: 'slow',
     evidenceReceiptIds: [
       'r-sl-1', 'r-sl-2', 'r-sl-3', 'r-sl-4', 'r-sl-5',
@@ -1257,7 +1258,7 @@ export const OPERATIONAL_INTERVENTIONS: string[] = [
   'Require meeting contracts for contract exception reviews.',
   'Require pre-read before Sales–Legal live review.',
   'Route low-risk contract exceptions through async workflow.',
-  'Deploy Legal intake agent for first-pass validation.',
+  'Deploy Legal intake agent only for first-pass validation under governed delegation rules. Human approval remains required for non-standard terms.',
   'Create shared Legal–Finance input definition.',
   'Validate missing Sales–Finance pricing-governance path.',
   'Redraw the graph at the next QBR.',
@@ -1318,40 +1319,42 @@ export const ATTENDANCE_ACTIONS: {
     description: 'Sales accepted Required Contributor role for Pricing Exception Review.',
   },
   {
-    key: 'send_agent',
-    label: 'Send my agent to observe',
-    eventType: 'agent_observe_requested',
-    description: 'Sales sent an agent to observe Pricing Exception Review.',
+    key: 'authorize_observe',
+    label: 'Authorize agent to observe',
+    eventType: 'agent_authorization_granted',
+    description:
+      'Sales authorized observe-only agent coverage for Pricing Exception Review under restricted delegation boundary.',
   },
   {
-    key: 'summary_only',
-    label: 'Move me to summary-only',
-    eventType: 'summary_only_requested',
-    description: 'Sales requested summary-only participation for Pricing Exception Review.',
+    key: 'authorize_summary',
+    label: 'Authorize summary-only coverage',
+    eventType: 'agent_summary_only_selected',
+    description: 'Sales authorized summary-only agent coverage under governed delegation rules.',
   },
   {
-    key: 'request_preread',
-    label: 'Request pre-read',
-    eventType: 'preread_requested',
-    description: 'Required Contributor requested pre-read before accepting live attendance.',
+    key: 'human_required',
+    label: 'Human required',
+    eventType: 'human_required_confirmed',
+    description:
+      'Human required confirmed for Pricing Exception Review; agent limited to observe-only.',
   },
   {
-    key: 'request_async',
-    label: 'Request async workflow',
-    eventType: 'async_requested',
-    description: 'Sales requested an async workflow instead of live time.',
+    key: 'block',
+    label: 'Block agent delegation',
+    eventType: 'agent_authorization_blocked',
+    description: 'Sales blocked agent delegation for Pricing Exception Review due to escalation risk.',
   },
   {
     key: 'challenge',
-    label: 'Challenge my assigned role',
+    label: 'Challenge assigned role',
     eventType: 'role_challenged',
     description: 'Sales challenged the assigned Required Contributor role.',
   },
   {
-    key: 'decline',
-    label: 'Decline live attendance with reason',
-    eventType: 'attendance_declined',
-    description: 'Sales declined live attendance with a stated reason.',
+    key: 'request_preread',
+    label: 'Request pre-read before authorization',
+    eventType: 'preread_requested',
+    description: 'Required Contributor requested pre-read before authorizing agent coverage.',
   },
 ]
 
@@ -1363,7 +1366,7 @@ export const CHALLENGE_OPTIONS: { label: string; description: string }[] = [
   },
   {
     label: 'My org can send an agent',
-    description: 'Sales challenged required attendance because an org agent can cover.',
+    description: 'Sales challenged required attendance because an org agent is authorized to cover.',
   },
   {
     label: 'Required context is missing',
@@ -1392,9 +1395,9 @@ export const PREREAD_ITEMS: { item: string; status: 'Available' | 'Missing' | 'N
 ]
 
 export const AGENT_OPTIONS: string[] = [
-  'Agent observes only',
-  'Agent attends instead of me',
-  'Agent summarizes for my org',
+  'Authorized to observe',
+  'Authorized summary-only',
+  'Agent may observe; cannot commit',
   'Human required',
 ]
 
@@ -1402,8 +1405,118 @@ export const AGENT_RECOMMENDED = 'Human required; agent may observe.'
 
 export const ATTENDANCE_JUDGMENT: string[] = [
   'Your live attendance is justified because customer judgment is required.',
-  'Agent can observe but should not replace you.',
+  'An agent may observe but is not authorized to replace you.',
   'Pre-read should be reviewed before joining.',
-  'If Legal language is missing, request pre-read before accepting.',
+  'If Legal language is missing, request pre-read before authorizing coverage.',
   'Your response will become a factual receipt.',
+]
+
+// ===========================================================================
+// Governed Delegation — agents cover only under consented, bounded authority
+// ===========================================================================
+
+/** The platform principle, reused wherever agent copy needs it. */
+export const DELEGATION_PRINCIPLE =
+  'Agents do not cover by default. They are authorized to cover when delegation is consented, bounded, and supported by receipts.'
+
+/** The strategic distinction between commodity AI and governed delegation. */
+export const DELEGATION_STRATEGY =
+  'MeetingOS does not send agents by default. It authorizes delegation when the person consents, the role allows it, the risk level is acceptable, and prior receipts support safe coverage.'
+
+export const AUTHORITY_BOUNDARY_COPY =
+  'An authorized agent may observe, summarize, and escalate within approved boundaries. It cannot approve, negotiate, commit, or represent opinion as policy.'
+
+/** The dimensions of a governed delegation decision. */
+export const GOVERNED_DELEGATION: { k: string; v: string }[] = [
+  { k: 'Consent required', v: 'The represented person or org must authorize coverage.' },
+  { k: 'Delegation scope', v: 'Observe, summarize, represent context, answer from approved knowledge, or escalate only.' },
+  { k: 'Authority boundary', v: 'Cannot approve, negotiate, commit, or represent opinion as policy.' },
+  { k: 'Risk level', v: 'Low, medium, high, or restricted — sets the allowed scope.' },
+  { k: 'Supporting receipts', v: 'Prior meeting and scorecard receipts must support safe coverage.' },
+  { k: 'Escalation rule', v: 'The condition that returns the meeting to a human.' },
+  { k: 'Human-required conditions', v: 'Judgment, authority, trust, negotiation, or customer context.' },
+]
+
+export const AGENT_AUTHORIZATIONS: AgentAuthorization[] = [
+  {
+    id: 'auth-launch',
+    meetingId: 'mtg-launch-checkpoint',
+    meetingTitle: 'Product Launch Checkpoint',
+    agentId: 'agent-product',
+    representedPerson: 'Product Delivery Lead',
+    representedOrg: 'Product',
+    requestedBy: 'Product Delivery Lead',
+    authorizationStatus: 'authorized',
+    delegationScope: 'summarize',
+    authorityBoundary:
+      'Agent may summarize risks and dependencies, but cannot make roadmap commitments.',
+    riskLevel: 'low',
+    consentCaptured: true,
+    supportingScorecardId: 'sc-sales-eng',
+    escalationRule: 'Escalate if a launch-blocking risk appears.',
+    receiptId: 'r-auth-launch',
+    reason: 'Attendee is informed-only; similar meetings resolved async 83% of the time.',
+    receiptDescription:
+      'Attendee View: Product authorized agent for summary-only coverage under governed delegation rules.',
+  },
+  {
+    id: 'auth-status',
+    meetingId: 'mtg-status-sync',
+    meetingTitle: 'Weekly Status Sync',
+    agentId: 'agent-revops',
+    representedPerson: 'Revenue Operations Lead',
+    representedOrg: 'Revenue Operations',
+    requestedBy: 'Revenue Operations Lead',
+    authorizationStatus: 'authorized',
+    delegationScope: 'observe',
+    authorityBoundary: 'Agent may capture updates and blockers only.',
+    riskLevel: 'low',
+    consentCaptured: true,
+    supportingScorecardId: 'sc-sales-eng',
+    escalationRule: 'Escalate if a decision is unexpectedly required.',
+    receiptId: 'r-auth-status',
+    reason: 'Recurring update meeting; no decision authority required.',
+    receiptDescription:
+      'Attendee View: Revenue Operations authorized agent to observe recurring status sync.',
+  },
+  {
+    id: 'auth-pricing',
+    meetingId: 'mtg-pricing-exception',
+    meetingTitle: 'Pricing Exception Review',
+    agentId: 'agent-revops',
+    representedPerson: 'VP, Revenue Operations',
+    representedOrg: 'Sales',
+    requestedBy: 'Deal Desk',
+    authorizationStatus: 'human_required',
+    delegationScope: 'observe',
+    authorityBoundary:
+      'Agent may observe and summarize, but cannot approve, negotiate, or commit.',
+    riskLevel: 'restricted',
+    consentCaptured: false,
+    supportingScorecardId: 'sc-sales-legal',
+    escalationRule: 'Human decision owner must be present to close.',
+    receiptId: 'r-auth-pricing',
+    reason: 'Sales customer judgment and Finance decision authority are required.',
+    receiptDescription:
+      'Attendee View: Human required confirmed for Pricing Exception Review; agent limited to observe-only.',
+  },
+  {
+    id: 'auth-escalation',
+    meetingId: 'mtg-escalation-room',
+    meetingTitle: 'Customer Escalation Room',
+    agentId: 'agent-exec',
+    representedPerson: 'Customer Success Lead',
+    representedOrg: 'Customer Success',
+    requestedBy: 'Customer Success Lead',
+    authorizationStatus: 'blocked',
+    delegationScope: 'none',
+    authorityBoundary: 'Agent not authorized.',
+    riskLevel: 'high',
+    consentCaptured: false,
+    supportingScorecardId: '—',
+    escalationRule: 'Live human judgment and relationship management required throughout.',
+    receiptId: 'r-auth-escalation',
+    reason: 'Customer escalation requires live human judgment and relationship management.',
+    receiptDescription: 'Attendee View: Agent authorization blocked due to escalation risk.',
+  },
 ]

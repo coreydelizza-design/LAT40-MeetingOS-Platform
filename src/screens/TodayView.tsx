@@ -28,7 +28,7 @@ const SUMMARY_GUIDANCE: Record<string, (typeof GUIDANCE)[keyof typeof GUIDANCE]>
 const ACTION_TARGET: Record<string, ViewId> = {
   'Attend live': 'decision-room',
   'Attend with prep': 'decision-room',
-  'Send org agent': 'agents',
+  'Authorize agent': 'attendee',
   'Convert or decline': 'calendar',
   'Add decision owner': 'build',
 }
@@ -157,8 +157,15 @@ export function TodayView({ navigate }: { navigate: (v: ViewId) => void }) {
             </p>
           </div>
 
-          {/* 5. Agent Coverage */}
-          <SectionHeader title="Agent Coverage" aside="Represented attendance" />
+          {/* 5. Authorized Agent Coverage */}
+          <SectionHeader
+            title={
+              <GuidanceHint {...GUIDANCE.authorized_agent_coverage} underline={false}>
+                Authorized Agent Coverage
+              </GuidanceHint>
+            }
+            aside="Governed delegation"
+          />
           <table className="exec-table">
             <tbody>
               {AGENT_COVERAGE_TODAY.map((a) => (

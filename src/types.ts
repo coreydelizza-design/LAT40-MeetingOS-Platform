@@ -8,7 +8,7 @@
 export type MeetingState =
   | 'ASYNC RECOMMENDED'
   | 'DECISION READY'
-  | 'AGENT CAN COVER'
+  | 'AUTHORIZATION AVAILABLE'
   | 'FOCUS PROTECTED'
   | 'LIVE REQUIRED'
 
@@ -26,10 +26,11 @@ export type AttendeeRole =
   | 'N/A'
 
 export type AgentEligibility =
-  | 'Agent recommended'
-  | 'Agent can attend'
-  | 'Human required, agent observes'
+  | 'Authorized to observe'
+  | 'Authorized summary-only'
+  | 'Human required, agent may observe'
   | 'Human required'
+  | 'Delegation blocked'
   | 'N/A'
 
 export interface Meeting {
@@ -84,6 +85,49 @@ export interface OrgCard {
     summaryOnly: string[]
     notRelevant: string[]
   }
+}
+
+/**
+ * Governed delegation: agents do not cover by default. An AgentAuthorization
+ * records the consented, bounded, auditable authority for an agent to cover a
+ * specific meeting — supported by receipts and relationship scorecards.
+ */
+export type AuthorizationStatus =
+  | 'authorized'
+  | 'blocked'
+  | 'human_required'
+  | 'observe_only'
+  | 'summary_only'
+
+export type DelegationScope =
+  | 'observe'
+  | 'summarize'
+  | 'represent_context'
+  | 'answer_from_approved_knowledge'
+  | 'escalate_only'
+  | 'none'
+
+export type AgentRiskLevel = 'low' | 'medium' | 'high' | 'restricted'
+
+export interface AgentAuthorization {
+  id: string
+  meetingId: string
+  agentId: string
+  representedPerson: string
+  representedOrg: string
+  requestedBy: string
+  authorizationStatus: AuthorizationStatus
+  delegationScope: DelegationScope
+  authorityBoundary: string
+  riskLevel: AgentRiskLevel
+  consentCaptured: boolean
+  supportingScorecardId: string
+  escalationRule: string
+  receiptId: string
+  /** Display helpers (frontend-only). */
+  meetingTitle?: string
+  reason?: string
+  receiptDescription?: string
 }
 
 export type AgentType =

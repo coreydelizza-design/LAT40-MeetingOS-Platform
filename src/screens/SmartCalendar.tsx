@@ -9,13 +9,13 @@ import type { Meeting, MeetingState, ViewId } from '../types'
 const STATE_GUIDE: Record<MeetingState, GuidanceCopy> = {
   'ASYNC RECOMMENDED': GUIDANCE.async_recommended,
   'DECISION READY': GUIDANCE.decision_ready,
-  'AGENT CAN COVER': GUIDANCE.agent_can_cover,
+  'AUTHORIZATION AVAILABLE': GUIDANCE.authorized_agent_coverage,
   'FOCUS PROTECTED': GUIDANCE.focus_protected,
   'LIVE REQUIRED': GUIDANCE.live_required,
 }
 
 const INTERVENTIONS = [
-  'Send agent',
+  'Authorize agent',
   'Request agenda',
   'Convert to async',
   'Shorten meeting',
