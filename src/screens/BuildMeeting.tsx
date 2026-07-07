@@ -1,8 +1,15 @@
 import { useState } from 'react'
-import { Kicker, SectionHeader, ContractBlock, BulletList } from '../components/primitives'
+import { Kicker, SectionHeader, ContractBlock, BulletList, KVPanel } from '../components/primitives'
 import { GuidanceHint } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
-import { PRICING_CONTRACT } from '../data/mock'
+import {
+  PRICING_CONTRACT,
+  BUILDER_CONTEXT_ITEMS,
+  OVERRIDE_REASONS,
+  PRE_MEETING_SCORES,
+  BUILDER_RECEIPTS,
+} from '../data/mock'
+import type { MeetingBuilderState } from '../types'
 
 const INTENTS = [
   'Make a decision',
@@ -45,17 +52,6 @@ const ROLES = [
   'Agent Representative',
 ]
 
-const CONTEXT = [
-  'Pre-read',
-  'Dashboard',
-  'Customer record',
-  'Ticket',
-  'Prior decision',
-  'Open risk',
-  'Proposed options',
-  'Approval request',
-]
-
 const RECOMMENDATION_TYPES = [
   'Schedule live meeting',
   'Shorten meeting',
@@ -68,15 +64,51 @@ const RECOMMENDATION_TYPES = [
   'Do not schedule',
 ]
 
+const IMPACTED_ORGS = ['Sales', 'Finance', 'Legal', 'Product']
+
+/** A small monochrome receipt-preview cue shown under an instrumented section. */
+function ReceiptCue({ event, detail }: { event: string; detail?: string }) {
+  return (
+    <div className="receipt-cue">
+      Receipt preview: meeting_builder · {event}
+      {detail ? ` · ${detail}` : ''}
+    </div>
+  )
+}
+
 export function BuildMeeting() {
   const [intent, setIntent] = useState('Make a decision')
   const [output, setOutput] = useState('Decision')
   const [live, setLive] = useState(LIVE_OPTIONS[0])
   const [roles, setRoles] = useState<string[]>(['Decision Owner', 'Approver'])
-  const [context, setContext] = useState<string[]>(['Pre-read'])
+  const [context, setContext] = useState<string[]>(['Margin model', 'Customer timeline'])
+  const [decision, setDecision] = useState<'accept' | 'override' | null>(null)
+  const [overrideReason, setOverrideReason] = useState<string | null>(null)
 
   const toggle = (list: string[], set: (v: string[]) => void, v: string) =>
     set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v])
+
+  const overrideStatus =
+    decision === 'override'
+      ? `Overridden — ${overrideReason ?? 'reason pending'}`
+      : decision === 'accept'
+        ? 'Recommendation accepted'
+        : 'Pending'
+
+  // The organizer-declared state, typed for clarity (frontend-only).
+  const builderState: MeetingBuilderState = {
+    intent,
+    requiredOutput: output,
+    liveDiscussionRequirement: live,
+    decisionOwner: 'Finance Director',
+    impactedOrgs: IMPACTED_ORGS,
+    attendeeRoles: roles,
+    requiredContext: context,
+    recommendation: '25-minute decision meeting',
+    overrideReason: decision === 'override' ? overrideReason : null,
+    meetingContractGenerated: true,
+    receipts: BUILDER_RECEIPTS,
+  }
 
   return (
     <div className="canvas">
@@ -85,6 +117,11 @@ export function BuildMeeting() {
         <h1 className="display">Build Smart Meeting</h1>
         <p className="thesis">Start with the outcome. The calendar comes later.</p>
       </header>
+
+      <p className="note-box" style={{ marginBottom: 32, maxWidth: '72ch' }}>
+        We do not wait for the meeting to happen. We capture the operating decision that caused the
+        meeting to exist. Each choice below is recorded as an organizer-declared receipt.
+      </p>
 
       <div className="canvas-split">
         <div>
@@ -104,6 +141,7 @@ export function BuildMeeting() {
                 </button>
               ))}
             </div>
+            <ReceiptCue event="intent_selected" detail={intent} />
           </Step>
 
           <Step
@@ -122,6 +160,7 @@ export function BuildMeeting() {
                 </button>
               ))}
             </div>
+            <ReceiptCue event="required_output_selected" detail={output} />
           </Step>
 
           <Step
@@ -133,6 +172,10 @@ export function BuildMeeting() {
             }
             question="Is live discussion required?"
           >
+            <p className="muted" style={{ marginTop: -8, marginBottom: 16, fontSize: 13.5 }}>
+              Live time should be justified by judgment, conflict, trust, urgency, decision
+              authority, or escalation.
+            </p>
             <div className="choice-grid">
               {LIVE_OPTIONS.map((o) => (
                 <button
@@ -144,6 +187,7 @@ export function BuildMeeting() {
                 </button>
               ))}
             </div>
+            <ReceiptCue event="live_discussion_selected" detail={live} />
           </Step>
 
           <Step
@@ -166,15 +210,21 @@ export function BuildMeeting() {
               If this person does not have a role, they should receive the summary instead of
               attending live.
             </p>
+            {roles.length ? (
+              <ReceiptCue
+                event="attendee_role_assigned"
+                detail={`${roles.length} assigned — ${roles.join(', ')}`}
+              />
+            ) : null}
           </Step>
 
           <Step
             n="5"
-            title="Context"
-            question="What context should be reviewed before live time is consumed?"
+            title="Context / Pre-Read"
+            question="What context must be reviewed before live time is consumed?"
           >
             <div className="chip-row">
-              {CONTEXT.map((o) => (
+              {BUILDER_CONTEXT_ITEMS.map((o) => (
                 <button
                   key={o}
                   className={`chip${context.includes(o) ? ' selected' : ''}`}
@@ -184,6 +234,10 @@ export function BuildMeeting() {
                 </button>
               ))}
             </div>
+            <p className="note-box" style={{ marginTop: 16 }}>
+              Missing context weakens meeting readiness and increases deferral risk.
+            </p>
+            <ReceiptCue event="pre_read_required" detail={`${context.length} context items`} />
           </Step>
         </div>
 
@@ -200,8 +254,20 @@ export function BuildMeeting() {
             <div style={{ padding: '18px 20px' }}>
               <p className="serif" style={{ fontSize: 17, lineHeight: 1.45 }}>
                 Recommended format: 25-minute decision meeting. Required live attendees: 4. Summary
-                recipients: 6. Add a pre-read before scheduling.
+                recipients: 6. Pre-read required before scheduling.
               </p>
+
+              <div className="rule" />
+              <Judgment label="Reason">
+                Customer deadline and pricing authority require live judgment.
+              </Judgment>
+              <Judgment label="Alternative considered">
+                Async approval workflow.
+              </Judgment>
+              <Judgment label="Risk if live without context">
+                If Legal exception language is missing, the decision is likely to defer.
+              </Judgment>
+
               <div className="rule" />
               <div className="label" style={{ marginBottom: 10 }}>
                 Reading from your inputs
@@ -215,14 +281,53 @@ export function BuildMeeting() {
                   `Context to pre-read — ${context.length || 'none'}`,
                 ]}
               />
+
               <div className="rule" />
-              <p className="faint" style={{ fontSize: 12.5, lineHeight: 1.5 }}>
-                Choosing live over an async recommendation records an{' '}
-                <GuidanceHint {...GUIDANCE.async_override}>
-                  async recommendation override
-                </GuidanceHint>{' '}
-                as an auditable receipt.
-              </p>
+              <div className="label" style={{ marginBottom: 10 }}>
+                Organizer decision
+              </div>
+              <div className="row" style={{ gap: 8 }}>
+                <button
+                  className={`btn btn-sm ${decision === 'accept' ? 'btn-solid' : 'btn-ghost'}`}
+                  onClick={() => {
+                    setDecision('accept')
+                    setOverrideReason(null)
+                  }}
+                >
+                  Accept recommendation
+                </button>
+                <button
+                  className={`btn btn-sm ${decision === 'override' ? 'btn-solid' : 'btn-ghost'}`}
+                  onClick={() => setDecision('override')}
+                >
+                  Override recommendation
+                </button>
+              </div>
+              {decision === 'accept' ? (
+                <ReceiptCue event="async_recommendation_accepted" />
+              ) : null}
+              {decision === 'override' ? (
+                <>
+                  <div className="label" style={{ margin: '16px 0 8px' }}>
+                    <GuidanceHint {...GUIDANCE.async_override}>Override reason</GuidanceHint>
+                  </div>
+                  <div className="chip-row">
+                    {OVERRIDE_REASONS.map((r) => (
+                      <button
+                        key={r}
+                        className={`chip${overrideReason === r ? ' selected' : ''}`}
+                        onClick={() => setOverrideReason(r)}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                  <ReceiptCue event="async_recommendation_overridden" />
+                  {overrideReason ? (
+                    <ReceiptCue event="override_reason_submitted" detail={overrideReason} />
+                  ) : null}
+                </>
+              ) : null}
             </div>
           </aside>
 
@@ -271,6 +376,82 @@ export function BuildMeeting() {
           { label: 'Sensitivity level', value: PRICING_CONTRACT.sensitivityLevel },
         ]}
       />
+
+      <SectionHeader title="Declared Facts" aside="Why this meeting exists" />
+      <KVPanel
+        rows={[
+          { k: 'Intent', v: builderState.intent },
+          { k: 'Required output', v: builderState.requiredOutput },
+          { k: 'Decision owner', v: builderState.decisionOwner },
+          { k: 'Impacted orgs', v: builderState.impactedOrgs.join(' · ') },
+          { k: 'Required roles', v: builderState.attendeeRoles.join(' · ') || 'None' },
+          { k: 'Required context', v: builderState.requiredContext.join(' · ') || 'None' },
+          { k: 'Meeting judgment', v: builderState.recommendation },
+          { k: 'Override status', v: overrideStatus },
+          { k: 'Generated receipts', v: String(builderState.receipts.length), serif: true },
+        ]}
+      />
+
+      <SectionHeader title="Pre-Meeting Scores" aside="Evidence-based, not KPIs" />
+      <div className="kv-panel">
+        {PRE_MEETING_SCORES.map((s) => (
+          <div className="kv-row" key={s.label}>
+            <span className="k">
+              {s.label}
+              <span className="faint" style={{ display: 'block', fontSize: 12, marginTop: 2 }}>
+                {s.note}
+              </span>
+            </span>
+            <span className="v serif">{s.value}</span>
+          </div>
+        ))}
+      </div>
+
+      <SectionHeader
+        title="Builder Receipts"
+        aside={`${BUILDER_RECEIPTS.length} organizer-declared facts`}
+      />
+      <table className="exec-table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Event type</th>
+            <th>Actor org</th>
+            <th>Evidence</th>
+            <th style={{ width: '38%' }}>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {BUILDER_RECEIPTS.map((r) => (
+            <tr key={r.id}>
+              <td className="muted" style={{ fontSize: 12.5 }}>
+                {r.source}
+              </td>
+              <td className="strong" style={{ fontSize: 13 }}>
+                {r.eventType}
+              </td>
+              <td className="muted">{r.actorOrg}</td>
+              <td className="muted" style={{ fontSize: 12.5 }}>
+                {r.evidenceLabel}
+              </td>
+              <td>{r.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function Judgment({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div className="label" style={{ marginBottom: 4 }}>
+        {label}
+      </div>
+      <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5 }}>
+        {children}
+      </p>
     </div>
   )
 }

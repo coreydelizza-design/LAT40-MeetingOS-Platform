@@ -632,6 +632,17 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 .meta-line { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray); }
 
+/* Inline receipt cue — lighter than a full receipt-line, for per-step previews */
+.receipt-cue {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--smoke);
+  margin-top: 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--line-strong);
+}
+
 /* Factual receipt line — auditable, monospace, monochrome */
 .receipt-line {
   font-family: var(--mono);

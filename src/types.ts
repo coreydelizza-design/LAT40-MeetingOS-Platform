@@ -236,6 +236,24 @@ export interface EventReceipt {
   evidenceLabel: string
 }
 
+/**
+ * Meeting Builder — organizer-declared facts captured before the meeting exists.
+ * Frontend-only; the receipts it generates are EventReceipt instances.
+ */
+export interface MeetingBuilderState {
+  intent: string
+  requiredOutput: string
+  liveDiscussionRequirement: string
+  decisionOwner: string
+  impactedOrgs: string[]
+  attendeeRoles: string[]
+  requiredContext: string[]
+  recommendation: string
+  overrideReason: string | null
+  meetingContractGenerated: boolean
+  receipts: EventReceipt[]
+}
+
 export type HealthState = 'healthy' | 'slow' | 'escalated' | 'missing' | 'improving'
 
 /** Layer 2 — the aggregated bank-statement view of one cross-org relationship. */
