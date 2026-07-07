@@ -54,7 +54,7 @@ const MODE_GUIDE: Record<string, GuidanceCopy> = {
 }
 
 const MODES: { mode: string; def: string }[] = [
-  { mode: 'Listen Mode', def: 'Attends silently and summarizes.' },
+  { mode: 'Listen Mode', def: 'Observes silently and summarizes.' },
   { mode: 'Represent Mode', def: 'Captures information based on approved instructions.' },
   { mode: 'Proxy Mode', def: 'Answers only from approved knowledge.' },
   { mode: 'Escalation Mode', def: 'Alerts a human when live intervention is required.' },

@@ -795,7 +795,7 @@ export const FRICTION_SIGNALS: string[] = [
 
 export const TODAY_MODERATOR: string[] = [
   'Start with the meetings requiring judgment.',
-  'Send your agent where you are informed-only.',
+  'Authorize agent coverage where you are informed-only.',
   'Do not enter decision meetings without a pre-read.',
   'Protect focus time unless escalation is live-required.',
   'Resolve one open dependency before scheduling a follow-up.',
@@ -975,7 +975,7 @@ export const EVENT_RECEIPTS: EventReceipt[] = [
     workflowType: 'Live decision review',
     description: 'Follow-up created: Legal to revise indemnity clause.',
     elapsedTime: '4.1 days',
-    evidenceLabel: 'Close-out · Follow-up',
+    evidenceLabel: 'Closeout · Follow-up',
   },
 
   // Sales ↔ Engineering — Customer Feasibility (healthy async trail)
@@ -1022,7 +1022,7 @@ export const EVENT_RECEIPTS: EventReceipt[] = [
     workflowType: 'Async-first review',
     description: 'Feasibility resolved async; no live meeting needed.',
     elapsedTime: '0.8 days',
-    evidenceLabel: 'Close-out · Resolved',
+    evidenceLabel: 'Closeout · Resolved',
   },
 
   // Legal ↔ Finance — Non-Standard Terms (low volume, high escalation)
@@ -1069,7 +1069,7 @@ export const EVENT_RECEIPTS: EventReceipt[] = [
     workflowType: 'Live escalation',
     description: 'Follow-up created: define non-standard term ownership.',
     elapsedTime: '3.6 days',
-    evidenceLabel: 'Close-out · Follow-up',
+    evidenceLabel: 'Closeout · Follow-up',
   },
 ]
 
@@ -1206,6 +1206,25 @@ export const SCORECARD_READINGS: Record<string, string> = {
     'The missing Sales–Finance edge is not a conclusion. It is a question: is Finance intentionally separated, or are pricing decisions happening outside the expected governance path?',
 }
 
+/**
+ * Last redraw — measured prior→current movement after interventions landed.
+ * This is the evidence that the graph is changing, not just the intent.
+ */
+export const REDRAW_MEASURED: { label: string; prior: string; current: string; intervention: string }[] = [
+  {
+    label: 'Sales ↔ Legal',
+    prior: 'Median resolution 11 days',
+    current: '6 days',
+    intervention: 'after pre-read requirement',
+  },
+  {
+    label: 'Sales ↔ Legal',
+    prior: 'Live escalation 40%',
+    current: '18%',
+    intervention: 'after async routing of low-risk exceptions',
+  },
+]
+
 /** Quarterly redraw targets — the intervention proof for next quarter. */
 export const REDRAW_TARGETS: { label: string; value: string }[] = [
   { label: 'Sales ↔ Legal', value: 'Reduce joint live hours from 38 to 24' },
@@ -1321,12 +1340,6 @@ export const CLAIMED_RELATIONSHIPS: ClaimedRelationship[] = [
 ]
 
 // --- Operational reading + interventions -----------------------------------
-
-export const OPERATIONAL_READINGS: string[] = [
-  'The Sales–Legal edge is where cross-org time is concentrating. The relationship is both high-volume and slow. This is the primary operating finding, drawn from receipts rather than interviews.',
-  'For Legal–Finance, volume is low but escalation is high. That suggests a broken input definition, unclear decision rights, or a trust gap. This is the strongest Phase 2 agent target.',
-  'The missing Sales–Finance edge is not a conclusion. It is a question: is Finance intentionally separated, or are pricing decisions happening outside the expected governance path?',
-]
 
 export const OPERATIONAL_INTERVENTIONS: string[] = [
   'Require meeting contracts for contract exception reviews.',

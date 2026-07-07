@@ -143,7 +143,7 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
           </table>
 
           {/* 2 — Attendance Decision */}
-          <SectionHeader title="Attendance Decision" aside="Frontend mock — creates a receipt" />
+          <SectionHeader title="Attendance Decision" aside="Creates an attendee-validated receipt" />
           <div className="choice-grid">
             {ATTENDANCE_ACTIONS.map((a) => (
               <button

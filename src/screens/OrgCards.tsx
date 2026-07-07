@@ -19,6 +19,10 @@ export function OrgCards() {
           The org chart shows reporting lines. Org Cards show what each organization needs to
           succeed.
         </p>
+        <p className="muted" style={{ maxWidth: '72ch', marginTop: 8, fontSize: 13.5 }}>
+          What each organization states here becomes the Claimed Model that the True Operational
+          Graph tests against measured receipts.
+        </p>
       </header>
 
       <div

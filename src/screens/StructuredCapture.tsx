@@ -9,12 +9,12 @@ import {
   ORG_SUMMARIES,
 } from '../data/mock'
 
-const SCORES = [
-  { label: 'Readiness score', value: '88 / 100', note: 'Pre-read complete; owner present.' },
-  { label: 'Necessity score', value: '92 / 100', note: 'Decision could not be made async.' },
-  { label: 'Meeting value score', value: 'High', note: 'Direct quarter-close impact.' },
-  { label: 'Async replaceability', value: 'Low', note: 'Live disagreement required resolution.' },
-  { label: 'Estimated time cost', value: '4 attendee-hrs', note: 'Against a critical decision.' },
+const MEETING_RECORD = [
+  { label: 'Pre-read', value: 'Complete', note: 'Circulated 26h before start.' },
+  { label: 'Decision owner present', value: 'Yes', note: 'Owner attended and closed the decision.' },
+  { label: 'Async-resolvable', value: 'No', note: 'Live disagreement on record.' },
+  { label: 'Decision recorded', value: 'Yes', note: 'Quarter-close impact.' },
+  { label: 'Live time cost', value: '4 attendee-hrs', note: 'Against a critical decision.' },
 ]
 
 export function StructuredCapture() {
@@ -168,7 +168,7 @@ export function StructuredCapture() {
         </tbody>
       </table>
 
-      <SectionHeader title="Org Summaries Generated" aside="Different by context" />
+      <SectionHeader title="Org-Specific Extracts" aside="Filtered by relevance" />
       <div className="grid-3">
         {ORG_SUMMARIES.map((s) => (
           <div className="work-card" key={s.org}>
@@ -189,9 +189,9 @@ export function StructuredCapture() {
         ))}
       </div>
 
-      <SectionHeader title="Meeting Scores" aside="Formal review labels" />
+      <SectionHeader title="Meeting Record" aside="Factual, non-rated fields" />
       <div className="kv-panel">
-        {SCORES.map((s) => (
+        {MEETING_RECORD.map((s) => (
           <div className="kv-row" key={s.label}>
             <span className="k">
               {s.label}

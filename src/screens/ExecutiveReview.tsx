@@ -19,11 +19,17 @@ export function ExecutiveReview() {
         </p>
       </header>
 
-      <SectionHeader title="Live Time Governance" />
-      <StatPanel rows={LIVE_TIME_GOVERNANCE} />
+      <SectionHeader title="Live Time Governance" aside="Measured from receipts" />
+      <StatPanel
+        rows={LIVE_TIME_GOVERNANCE}
+        source="Aggregated from meeting-builder and attendee receipts across the last 60 days."
+      />
 
-      <SectionHeader title="Decision Velocity" />
-      <StatPanel rows={DECISION_VELOCITY} />
+      <SectionHeader title="Decision Velocity" aside="Measured from receipts" />
+      <StatPanel
+        rows={DECISION_VELOCITY}
+        source="Aggregated from decision-room and close-out receipts across the last 60 days."
+      />
 
       <div className="grid-2" style={{ marginTop: 40 }}>
         <div>
@@ -68,19 +74,32 @@ export function ExecutiveReview() {
   )
 }
 
-function StatPanel({ rows }: { rows: { label: string; value: string }[] }) {
+function StatPanel({
+  rows,
+  source,
+}: {
+  rows: { label: string; value: string }[]
+  source?: string
+}) {
   return (
-    <div className="panel-row" style={{ gridTemplateColumns: `repeat(${rows.length}, 1fr)` }}>
-      {rows.map((r) => (
-        <div className="exec-panel" key={r.label}>
-          <div className="label" style={{ marginBottom: 14, minHeight: 28 }}>
-            {r.label}
+    <div>
+      <div className="panel-row" style={{ gridTemplateColumns: `repeat(${rows.length}, 1fr)` }}>
+        {rows.map((r) => (
+          <div className="exec-panel" key={r.label}>
+            <div className="label" style={{ marginBottom: 14, minHeight: 28 }}>
+              {r.label}
+            </div>
+            <div className="figure" style={{ fontSize: 20 }}>
+              {r.value}
+            </div>
           </div>
-          <div className="figure" style={{ fontSize: 28 }}>
-            {r.value}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      {source ? (
+        <p className="faint" style={{ fontSize: 12, marginTop: 10, lineHeight: 1.5 }}>
+          {source}
+        </p>
+      ) : null}
     </div>
   )
 }

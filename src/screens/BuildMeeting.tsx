@@ -49,7 +49,7 @@ const ROLES = [
   'Action Owner',
   'Optional Reviewer',
   'Informed Only',
-  'Agent Representative',
+  'Authorized Agent (Observe-Only)',
 ]
 
 const RECOMMENDATION_TYPES = [

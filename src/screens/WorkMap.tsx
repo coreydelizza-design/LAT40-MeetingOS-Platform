@@ -10,6 +10,7 @@ import {
   OPERATIONAL_INTERVENTIONS,
   SCORECARD_READINGS,
   SCORECARD_LINKAGE,
+  REDRAW_MEASURED,
   REDRAW_TARGETS,
 } from '../data/mock'
 import type { HealthState, RelationshipScorecard, EventReceipt } from '../types'
@@ -73,8 +74,8 @@ export function WorkMap() {
           maxWidth: '70ch',
         }}
       >
-        Every line is drawn from relationship scorecards. Every scorecard opens to the receipts
-        behind it.
+        MeetingOS does not visualize opinions. It graphs operational truth from receipts. Every
+        line is drawn from relationship scorecards. Every scorecard opens to the receipts behind it.
       </div>
 
       {/* 1 — Claimed vs Measured */}
@@ -113,7 +114,8 @@ export function WorkMap() {
             <GuidanceHint {...GUIDANCE.measured_model}>Measured Model</GuidanceHint>
           </div>
           <p className="muted" style={{ fontSize: 13, marginBottom: 16 }}>
-            Drawn from 60 days of meeting, attendee, agent, decision, and dependency receipts.
+            Drawn from 60 days of builder, attendee, agent, decision, dependency, and close-out
+            receipts.
           </p>
           <div className="select-list">
             {GRAPH_EDGES.map((e) => {
@@ -274,6 +276,23 @@ export function WorkMap() {
         and less escalation-heavy where interventions worked.
       </div>
       <div className="label" style={{ margin: '28px 0 12px' }}>
+        Last redraw — measured
+      </div>
+      <div className="ledger">
+        {REDRAW_MEASURED.map((m, i) => (
+          <div className="ledger-row" key={i} style={{ gridTemplateColumns: '160px 1fr' }}>
+            <span className="primary" style={{ fontWeight: 500 }}>
+              {m.label}
+            </span>
+            <span className="secondary">
+              {m.prior} <span className="faint">→</span>{' '}
+              <span className="strong">{m.current}</span>{' '}
+              <span className="faint">{m.intervention}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="label" style={{ margin: '28px 0 12px' }}>
         Targets for next redraw
       </div>
       <div className="ledger">
@@ -322,7 +341,7 @@ function Scorecard({ sc }: { sc: RelationshipScorecard }) {
     { k: 'Reopen rate', v: sc.reopenRate },
     { k: 'Unresolved dependencies', v: String(sc.unresolvedDependencyCount) },
     { k: 'Average dependency age', v: sc.averageDependencyAge },
-    { k: 'Agent-coverable hours', v: `${sc.agentCoverableHours} hrs` },
+    { k: 'Delegation-eligible hours', v: `${sc.agentCoverableHours} hrs` },
     { k: 'Authorized agent coverage hours', v: `${sc.authorizedAgentCoverageHours} hrs` },
   ]
 
