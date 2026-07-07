@@ -100,6 +100,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 0 28px;
   border-bottom: 1px solid var(--line-ink);
   background: var(--white);
+  /* Own stacking context above the scrolling main column. */
+  position: relative;
+  z-index: 10;
 }
 
 .command-bar .brand {
@@ -107,6 +110,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.01em;
+  flex-shrink: 0;
 }
 .command-bar .brand .lat40 {
   font-family: var(--sans);
@@ -124,17 +128,34 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: var(--smoke);
   font-size: 13px;
   letter-spacing: 0.02em;
+  /* Yield first when space is tight so the actions never clip. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .command-bar .date {
   margin-left: auto;
+  padding-left: 28px;
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--gray);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.command-bar .actions { display: flex; gap: 10px; }
+/* Actions are pinned right and must always stay clickable. */
+.command-bar .actions { display: flex; gap: 10px; flex-shrink: 0; }
+
+/* Drop the secondary chrome before the primary actions would ever clip. */
+@media (max-width: 1180px) {
+  .command-bar .workspace { display: none; }
+}
+@media (max-width: 960px) {
+  .command-bar .date { display: none; }
+}
 
 /* --- Buttons (monochrome, no color) --------------------------------------- */
 
