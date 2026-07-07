@@ -5,31 +5,33 @@ import { GUIDANCE } from '../data/guidance'
 import {
   ATTENDEE,
   ATTENDEE_INVITE,
+  ATTENDEE_ROSTER,
   WHY_INVITED,
   ATTENDANCE_ACTIONS,
   CHALLENGE_OPTIONS,
   PREREAD_ITEMS,
-  AGENT_OPTIONS,
-  AGENT_RECOMMENDED,
+  AGENT_AUTH_OPTIONS,
+  AGENT_AUTHORIZATION_FACTS,
   ATTENDANCE_JUDGMENT,
 } from '../data/mock'
 import type { AttendeeReceiptPreview, ViewId } from '../types'
 
+type Selection =
+  | { group: 'action'; key: string }
+  | { group: 'challenge'; key: string }
+  | { group: 'auth'; key: string }
+  | null
+
 export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
-  const [actionKey, setActionKey] = useState<string | null>(null)
-  const [challenge, setChallenge] = useState<string | null>(null)
-  const [agent, setAgent] = useState<string | null>(null)
+  const [selection, setSelection] = useState<Selection>(null)
   const [consent, setConsent] = useState(false)
 
-  const action = ATTENDANCE_ACTIONS.find((a) => a.key === actionKey) ?? null
-  const challengeOpt = CHALLENGE_OPTIONS.find((c) => c.label === challenge) ?? null
-
-  // A role challenge takes precedence in the receipt (it is the stronger fact).
-  const eventType = challengeOpt ? 'role_challenged' : (action?.eventType ?? '—')
-  const description = challengeOpt
-    ? challengeOpt.description
-    : (action?.description ?? 'No response captured yet. Select an attendance decision below.')
-  const hasResponse = Boolean(action || challengeOpt)
+  // Resolve the single active selection into a factual receipt.
+  const active = resolveReceipt(selection)
+  const eventType = active?.eventType ?? '—'
+  const description =
+    active?.description ?? 'No response captured yet. Select an attendance decision below.'
+  const hasResponse = Boolean(active)
 
   const preview: AttendeeReceiptPreview = {
     id: 'preview',
@@ -37,18 +39,15 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
     attendee: ATTENDEE.name,
     attendeeOrg: ATTENDEE.org,
     assignedRole: ATTENDEE.role,
-    selectedAction: action?.label ?? (challengeOpt ? 'Challenge my assigned role' : '—'),
-    reason: challengeOpt?.label,
-    agentSelection: agent ?? undefined,
+    expectedInput: 'Customer urgency, commercial impact, deadline risk',
+    selectedAction: active?.label ?? '—',
     receiptEventType: eventType,
     receiptDescription: description,
     timestamp: 'On submission',
   }
 
-  const selectChallenge = (label: string) => {
-    setChallenge((prev) => (prev === label ? null : label))
-    setActionKey('challenge')
-  }
+  const isActive = (group: string, key: string) =>
+    selection?.group === group && selection.key === key
 
   return (
     <div className="canvas">
@@ -110,19 +109,47 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
             If your assigned role is inaccurate, challenge it before accepting live time.
           </p>
 
+          <div className="eyebrow" style={{ margin: '28px 0 12px' }}>
+            Invited roster
+          </div>
+          <table className="exec-table">
+            <tbody>
+              {ATTENDEE_ROSTER.map((p) => (
+                <tr key={p.name}>
+                  <td className="strong" style={{ width: '32%' }}>
+                    {p.org}
+                    {p.org === ATTENDEE.org ? (
+                      <span className="faint" style={{ fontSize: 11 }}>
+                        {' '}
+                        · you
+                      </span>
+                    ) : null}
+                  </td>
+                  <td>{p.name}</td>
+                  <td className="muted" style={{ textAlign: 'right' }}>
+                    {p.role}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
           {/* 2 — Attendance Decision */}
           <SectionHeader title="Attendance Decision" aside="Frontend mock — creates a receipt" />
           <div className="choice-grid">
             {ATTENDANCE_ACTIONS.map((a) => (
               <button
                 key={a.key}
-                className={`choice${actionKey === a.key ? ' selected' : ''}`}
-                onClick={() => {
-                  setActionKey((prev) => (prev === a.key ? null : a.key))
-                  if (a.key !== 'challenge') setChallenge(null)
-                }}
+                className={`choice${isActive('action', a.key) ? ' selected' : ''}`}
+                onClick={() =>
+                  setSelection((prev) =>
+                    prev?.group === 'action' && prev.key === a.key
+                      ? null
+                      : { group: 'action', key: a.key },
+                  )
+                }
               >
-                {a.key === 'authorize_summary' ? (
+                {a.key === 'summary_only' ? (
                   <GuidanceHint {...GUIDANCE.summary_only} underline={false}>
                     {a.label}
                   </GuidanceHint>
@@ -153,16 +180,22 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
             {CHALLENGE_OPTIONS.map((c) => (
               <button
                 key={c.label}
-                className={`chip${challenge === c.label ? ' selected' : ''}`}
-                onClick={() => selectChallenge(c.label)}
+                className={`chip${isActive('challenge', c.label) ? ' selected' : ''}`}
+                onClick={() =>
+                  setSelection((prev) =>
+                    prev?.group === 'challenge' && prev.key === c.label
+                      ? null
+                      : { group: 'challenge', key: c.label },
+                  )
+                }
               >
                 {c.label}
               </button>
             ))}
           </div>
-          {challengeOpt ? (
+          {selection?.group === 'challenge' && active ? (
             <div className="receipt-line" style={{ marginTop: 16 }}>
-              Attendee View: {challengeOpt.description}
+              Attendee View: {active.description}
             </div>
           ) : null}
 
@@ -183,10 +216,7 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
           <div className="row" style={{ marginTop: 16, gap: 12 }}>
             <button
               className="btn btn-sm btn-ghost"
-              onClick={() => {
-                setActionKey('request_preread')
-                setChallenge(null)
-              }}
+              onClick={() => setSelection({ group: 'action', key: 'request_preread' })}
             >
               Request missing pre-read
             </button>
@@ -195,76 +225,63 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
             </span>
           </div>
 
-          {/* 5 — Agent Substitution */}
-          <SectionHeader
-            title={
-              <GuidanceHint {...GUIDANCE.agent_coverage} underline={false}>
-                Agent Coverage
-              </GuidanceHint>
-            }
-          />
-          <div className="work-card" style={{ borderColor: 'var(--line-ink)' }}>
-            <p style={{ fontSize: 14, color: 'var(--graphite)', lineHeight: 1.55 }}>
-              An agent may attend to observe and summarize, but cannot provide customer judgment,
-              approve pricing, negotiate terms, or make commitments.
-            </p>
-            <div className="chip-row" style={{ marginTop: 16 }}>
-              {AGENT_OPTIONS.map((o) => (
-                <button
-                  key={o}
-                  className={`chip${agent === o ? ' selected' : ''}`}
-                  onClick={() => setAgent((prev) => (prev === o ? null : o))}
-                >
-                  {o}
-                </button>
-              ))}
-            </div>
-            <div className="row" style={{ marginTop: 16, gap: 10 }}>
-              <span className="label">Recommended</span>
-              <span className="status critical">{AGENT_RECOMMENDED}</span>
-            </div>
-          </div>
-
-          {/* Delegation Authorization */}
+          {/* 5 — Governed Agent Authorization */}
           <SectionHeader
             title={
               <GuidanceHint {...GUIDANCE.governed_delegation} underline={false}>
-                Delegation Authorization
+                Governed Agent Authorization
               </GuidanceHint>
             }
             aside="Consented · bounded"
           />
-          <KVPanel
-            rows={[
-              { k: 'Assigned role', v: ATTENDEE.role },
-              { k: 'Delegation recommendation', v: 'Human required — agent may observe only' },
-              { k: 'Risk level', v: 'Restricted' },
-              { k: 'Allowed scope', v: 'Observe' },
-              {
-                k: 'Authority boundary',
-                v: 'Agent may observe and summarize, but cannot approve, negotiate, or commit.',
-              },
-            ]}
-          />
-          <div className="row" style={{ marginTop: 16, gap: 12 }}>
-            <button
-              className={`chip${consent ? ' selected' : ''}`}
-              aria-pressed={consent}
-              onClick={() => setConsent((v) => !v)}
-            >
-              {consent ? 'Consent captured' : 'Capture consent'}
-            </button>
-            <span className="faint" style={{ fontSize: 12.5 }}>
-              Delegation requires consent before an agent is authorized.
-            </span>
-          </div>
-          {consent ? (
-            <div className="receipt-line" style={{ marginTop: 16 }}>
-              Receipt created: attendee_view · agent_authorization_granted · Sales authorized
-              observe-only agent coverage for Pricing Exception Review under restricted delegation
-              boundary.
+          <div className="work-card" style={{ borderColor: 'var(--line-ink)' }}>
+            <p style={{ fontSize: 14, color: 'var(--graphite)', lineHeight: 1.55 }}>
+              An agent may observe and summarize only inside authorized delegation boundaries. It
+              cannot approve, negotiate, commit, or provide customer judgment.
+            </p>
+            <div style={{ marginTop: 18 }}>
+              <KVPanel rows={AGENT_AUTHORIZATION_FACTS.map((r) => ({ k: r.k, v: r.v }))} />
             </div>
-          ) : null}
+            <div className="row" style={{ marginTop: 16, gap: 12 }}>
+              <button
+                className={`chip${consent ? ' selected' : ''}`}
+                aria-pressed={consent}
+                onClick={() => setConsent((v) => !v)}
+              >
+                {consent ? 'Consent captured' : 'Capture consent'}
+              </button>
+              <span className="faint" style={{ fontSize: 12.5 }}>
+                Delegation requires consent before an agent is authorized.
+              </span>
+            </div>
+            <div className="chip-row" style={{ marginTop: 16 }}>
+              {AGENT_AUTH_OPTIONS.map((o) => {
+                const locked = o.needsConsent && !consent
+                return (
+                  <button
+                    key={o.key}
+                    className={`chip${isActive('auth', o.key) ? ' selected' : ''}`}
+                    disabled={locked}
+                    style={locked ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                    onClick={() =>
+                      setSelection((prev) =>
+                        prev?.group === 'auth' && prev.key === o.key
+                          ? null
+                          : { group: 'auth', key: o.key },
+                      )
+                    }
+                  >
+                    {o.label}
+                  </button>
+                )
+              })}
+            </div>
+            {selection?.group === 'auth' && active ? (
+              <div className="receipt-line" style={{ marginTop: 16 }}>
+                Receipt created: attendee_view · {active.eventType} · {active.description}
+              </div>
+            ) : null}
+          </div>
 
           {/* 6 — Receipt Preview */}
           <SectionHeader
@@ -318,4 +335,23 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
       </div>
     </div>
   )
+}
+
+/** Map the single active selection to its receipt facts. */
+function resolveReceipt(
+  selection: Selection,
+): { eventType: string; description: string; label: string } | null {
+  if (!selection) return null
+  if (selection.group === 'action') {
+    const a = ATTENDANCE_ACTIONS.find((x) => x.key === selection.key)
+    return a ? { eventType: a.eventType, description: a.description, label: a.label } : null
+  }
+  if (selection.group === 'challenge') {
+    const c = CHALLENGE_OPTIONS.find((x) => x.label === selection.key)
+    return c
+      ? { eventType: 'role_challenged', description: c.description, label: 'Challenge my assigned role' }
+      : null
+  }
+  const o = AGENT_AUTH_OPTIONS.find((x) => x.key === selection.key)
+  return o ? { eventType: o.eventType, description: o.description, label: o.label } : null
 }

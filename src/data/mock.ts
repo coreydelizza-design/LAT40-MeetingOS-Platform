@@ -1305,6 +1305,16 @@ export const WHY_INVITED: { k: string; v: string }[] = [
   { k: 'Agent eligibility', v: 'Agent may observe, but cannot replace human' },
 ]
 
+/** The full invited roster for the mock meeting (role-level attendance model). */
+export const ATTENDEE_ROSTER: { name: string; org: string; role: string }[] = [
+  { name: 'A. Reyes', org: 'Sales', role: 'Required Contributor' },
+  { name: 'J. Okonkwo', org: 'Finance', role: 'Decision Owner' },
+  { name: 'M. Okafor', org: 'Legal', role: 'Required Contributor' },
+  { name: 'S. Patel', org: 'Product', role: 'Required Contributor' },
+  { name: 'L. Nguyen', org: 'Customer Success', role: 'Summary Recipient' },
+  { name: 'D. Cho', org: 'Revenue Operations', role: 'Summary Recipient' },
+]
+
 /** Attendance actions → the receipt each one would create. */
 export const ATTENDANCE_ACTIONS: {
   key: string
@@ -1326,10 +1336,52 @@ export const ATTENDANCE_ACTIONS: {
       'Sales authorized observe-only agent coverage for Pricing Exception Review under restricted delegation boundary.',
   },
   {
-    key: 'authorize_summary',
-    label: 'Authorize summary-only coverage',
-    eventType: 'agent_summary_only_selected',
-    description: 'Sales authorized summary-only agent coverage under governed delegation rules.',
+    key: 'summary_only',
+    label: 'Move me to summary-only',
+    eventType: 'summary_only_requested',
+    description: 'Sales requested summary-only participation for Pricing Exception Review.',
+  },
+  {
+    key: 'request_preread',
+    label: 'Request pre-read',
+    eventType: 'preread_requested',
+    description: 'Required Contributor requested pre-read before accepting live attendance.',
+  },
+  {
+    key: 'request_async',
+    label: 'Request async workflow',
+    eventType: 'async_requested',
+    description: 'Sales requested an async workflow instead of live time.',
+  },
+  {
+    key: 'challenge',
+    label: 'Challenge my assigned role',
+    eventType: 'role_challenged',
+    description: 'Sales challenged the assigned Required Contributor role.',
+  },
+  {
+    key: 'decline',
+    label: 'Decline live attendance with reason',
+    eventType: 'attendance_declined',
+    description: 'Sales declined live attendance with a stated reason.',
+  },
+]
+
+/** Section 5 — governed agent authorization options and their receipts. */
+export const AGENT_AUTH_OPTIONS: {
+  key: string
+  label: string
+  eventType: string
+  description: string
+  needsConsent: boolean
+}[] = [
+  {
+    key: 'authorize_observe_only',
+    label: 'Authorize observe-only agent',
+    eventType: 'agent_authorization_granted',
+    description:
+      'Sales authorized observe-only agent coverage for Pricing Exception Review under restricted delegation boundary.',
+    needsConsent: true,
   },
   {
     key: 'human_required',
@@ -1337,25 +1389,24 @@ export const ATTENDANCE_ACTIONS: {
     eventType: 'human_required_confirmed',
     description:
       'Human required confirmed for Pricing Exception Review; agent limited to observe-only.',
+    needsConsent: false,
   },
   {
     key: 'block',
     label: 'Block agent delegation',
     eventType: 'agent_authorization_blocked',
     description: 'Sales blocked agent delegation for Pricing Exception Review due to escalation risk.',
+    needsConsent: false,
   },
-  {
-    key: 'challenge',
-    label: 'Challenge assigned role',
-    eventType: 'role_challenged',
-    description: 'Sales challenged the assigned Required Contributor role.',
-  },
-  {
-    key: 'request_preread',
-    label: 'Request pre-read before authorization',
-    eventType: 'preread_requested',
-    description: 'Required Contributor requested pre-read before authorizing agent coverage.',
-  },
+]
+
+/** The governed authorization facts shown for this meeting. */
+export const AGENT_AUTHORIZATION_FACTS: { k: string; v: string }[] = [
+  { k: 'Recommended state', v: 'Human required; agent may observe.' },
+  { k: 'Delegation status', v: 'Observe-only allowed.' },
+  { k: 'Risk level', v: 'Restricted.' },
+  { k: 'Authority boundary', v: 'Agent may summarize decisions, risks, and dependencies only.' },
+  { k: 'Consent required', v: 'Yes.' },
 ]
 
 /** Role-challenge reasons → the receipt description they produce. */
@@ -1365,7 +1416,7 @@ export const CHALLENGE_OPTIONS: { label: string; description: string }[] = [
     description: 'Sales challenged required attendance, stating an informed-only role.',
   },
   {
-    label: 'My org can send an agent',
+    label: 'My org can authorize an agent',
     description: 'Sales challenged required attendance because an org agent is authorized to cover.',
   },
   {
@@ -1388,17 +1439,10 @@ export const CHALLENGE_OPTIONS: { label: string; description: string }[] = [
 
 export const PREREAD_ITEMS: { item: string; status: 'Available' | 'Missing' | 'Needs review' }[] = [
   { item: 'Margin model', status: 'Available' },
-  { item: 'Contract redline', status: 'Needs review' },
+  { item: 'Contract redline', status: 'Missing' },
   { item: 'Customer timeline', status: 'Available' },
-  { item: 'Product delivery impact', status: 'Missing' },
+  { item: 'Product delivery impact', status: 'Needs review' },
   { item: 'Legal exception language', status: 'Missing' },
-]
-
-export const AGENT_OPTIONS: string[] = [
-  'Authorized to observe',
-  'Authorized summary-only',
-  'Agent may observe; cannot commit',
-  'Human required',
 ]
 
 export const AGENT_RECOMMENDED = 'Human required; agent may observe.'

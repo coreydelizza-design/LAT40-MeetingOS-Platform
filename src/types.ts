@@ -290,6 +290,7 @@ export interface AttendeeReceiptPreview {
   attendee: string
   attendeeOrg: string
   assignedRole: string
+  expectedInput?: string
   selectedAction: string
   reason?: string
   agentSelection?: string
