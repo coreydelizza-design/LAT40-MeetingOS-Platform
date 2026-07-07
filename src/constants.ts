@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
   { id: 'today', label: 'Today', note: 'Live time in front of you' },
   { id: 'calendar', label: 'Smart Calendar', note: 'Where attention is spent' },
   { id: 'build', label: 'Build Meeting', note: 'Design the decision object' },
+  { id: 'attendee', label: 'Review Invite', note: 'Validate live attendance' },
   { id: 'org-cards', label: 'Org Cards', note: 'What each org owns' },
   { id: 'decision-room', label: 'Decision Room', note: 'Govern the decision' },
   { id: 'agents', label: 'Agents', note: 'Represented coverage' },

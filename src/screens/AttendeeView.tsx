@@ -57,6 +57,14 @@ export function AttendeeView({ navigate }: { navigate: (v: ViewId) => void }) {
             <Kicker>Governed Attendance</Kicker>
             <h1 className="display">Attendee View</h1>
             <p className="thesis">Before you accept live time, confirm why you are needed.</p>
+            <p className="muted" style={{ marginTop: 14, fontSize: 13.5, maxWidth: '72ch' }}>
+              This is the page an employee reaches from a MeetingOS invite link. Their response
+              validates live attendance, agent authorization, pre-read readiness, or summary-only
+              participation.
+            </p>
+            <p className="meta-line" style={{ marginTop: 10 }}>
+              Attendee responses become factual receipts.
+            </p>
           </header>
 
           {/* Opening brief */}

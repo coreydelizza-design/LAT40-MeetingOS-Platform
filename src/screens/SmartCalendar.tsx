@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ReactNode } from 'react'
+import type { ReactNode, MouseEvent } from 'react'
 import { Kicker, SectionHeader, StatusLabel, ModeratorPanel } from '../components/primitives'
 import { GuidanceHint, type GuidanceCopy } from '../components/GuidanceHint'
 import { GUIDANCE } from '../data/guidance'
@@ -46,6 +46,7 @@ export function SmartCalendar({ navigate }: { navigate: (v: ViewId) => void }) {
                 meeting={m}
                 selected={selected === m.id}
                 onSelect={() => setSelected(m.id)}
+                navigate={navigate}
               />
             ))}
           </div>
@@ -67,7 +68,7 @@ export function SmartCalendar({ navigate }: { navigate: (v: ViewId) => void }) {
             'You can recover 90 minutes today.',
             'Two meetings do not require live attendance.',
             'One meeting lacks a decision owner.',
-            'Your agent can attend the Product Launch Checkpoint.',
+            'Your agent is authorized to observe the Product Launch Checkpoint.',
             'The Pricing Exception Review requires a pre-read before joining.',
           ]}
           foot={
@@ -85,15 +86,29 @@ export function SmartCalendar({ navigate }: { navigate: (v: ViewId) => void }) {
   )
 }
 
+/** A contextual secondary action per meeting; all route to Review Invite. */
+const BLOCK_VERB: Record<string, string> = {
+  'mtg-pricing-exception': 'Request pre-read',
+  'mtg-launch-checkpoint': 'Authorize agent',
+  'mtg-status-sync': 'Validate role',
+}
+
 function TimeBlock({
   meeting,
   selected,
   onSelect,
+  navigate,
 }: {
   meeting: Meeting
   selected: boolean
   onSelect: () => void
+  navigate: (v: ViewId) => void
 }) {
+  const verb = BLOCK_VERB[meeting.id]
+  const stop = (fn: () => void) => (e: MouseEvent) => {
+    e.stopPropagation()
+    fn()
+  }
   return (
     <div className={`time-block${selected ? ' selected' : ''}`}>
       <div className="clock">{meeting.time}</div>
@@ -128,6 +143,24 @@ function TimeBlock({
           />
           <Field label="Est. cost" value={meeting.estimatedCost} />
         </div>
+        {meeting.state !== 'FOCUS PROTECTED' ? (
+          <div className="row" style={{ marginTop: 14, gap: 8 }}>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={stop(() => navigate('attendee'))}
+            >
+              Review invite
+            </button>
+            {verb ? (
+              <button
+                className="btn btn-sm btn-ghost"
+                onClick={stop(() => navigate('attendee'))}
+              >
+                {verb}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   )

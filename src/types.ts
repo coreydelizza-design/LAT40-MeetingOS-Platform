@@ -328,5 +328,5 @@ export type ViewId =
   | 'capture'
   | 'work-map'
   | 'review'
-  // Reached via "Review invite" links, not shown in the left rail.
+  // Left-rail label is "Review Invite"; the page title remains "Attendee View".
   | 'attendee'

@@ -15,6 +15,13 @@ import {
   TODAY_MODERATOR,
 } from '../data/mock'
 
+/** Meetings that expose a "Review invite" entry point on Today. */
+const REVIEW_INVITE_TITLES = new Set([
+  'Pricing Exception Review',
+  'Product Launch Checkpoint',
+  'Weekly Status Sync',
+])
+
 /** Guidance keyed by the summary panel label text. */
 const SUMMARY_GUIDANCE: Record<string, (typeof GUIDANCE)[keyof typeof GUIDANCE]> = {
   'Live Required': GUIDANCE.live_required,
@@ -114,16 +121,26 @@ export function TodayView({ navigate }: { navigate: (v: ViewId) => void }) {
                     </td>
                     <td className="muted">{m.role}</td>
                     <td>
-                      {target ? (
-                        <button
-                          className="btn btn-sm btn-ghost"
-                          onClick={() => navigate(target)}
-                        >
-                          {m.action}
-                        </button>
-                      ) : (
-                        m.action
-                      )}
+                      <div className="stack-8">
+                        {target ? (
+                          <button
+                            className="btn btn-sm btn-ghost"
+                            onClick={() => navigate(target)}
+                          >
+                            {m.action}
+                          </button>
+                        ) : (
+                          <span>{m.action}</span>
+                        )}
+                        {REVIEW_INVITE_TITLES.has(m.title) ? (
+                          <button
+                            className="btn btn-sm btn-ghost"
+                            onClick={() => navigate('attendee')}
+                          >
+                            Review invite
+                          </button>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="muted">{m.impact}</td>
                   </tr>
