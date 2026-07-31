@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { NAV, PRODUCT, TODAY_LABEL } from '../constants'
+import { NAV, PRODUCT, SCREEN_TO_NAV, TODAY_LABEL } from '../constants'
 import type { ViewId } from '../types'
 
 interface AppShellProps {
@@ -13,7 +13,10 @@ export function AppShell({ view, onNavigate, children }: AppShellProps) {
     <div className="app-shell">
       <CommandBar onNavigate={onNavigate} />
       <LeftRail view={view} onNavigate={onNavigate} />
-      <main className="main">{children}</main>
+      <main className="main">
+        <StageBar view={view} onNavigate={onNavigate} />
+        {children}
+      </main>
     </div>
   )
 }
@@ -44,20 +47,54 @@ function CommandBar({ onNavigate }: { onNavigate: (v: ViewId) => void }) {
 }
 
 function LeftRail({ view, onNavigate }: { view: ViewId; onNavigate: (v: ViewId) => void }) {
+  const activeNav = SCREEN_TO_NAV[view]
   return (
     <nav className="left-rail" aria-label="Primary">
       <div className="rail-section">Workspace</div>
-      {NAV.map((item) => (
-        <button
-          key={item.id}
-          className={`rail-item${view === item.id ? ' active' : ''}`}
-          onClick={() => onNavigate(item.id)}
-          aria-current={view === item.id ? 'page' : undefined}
-        >
-          <div className="rail-label">{item.label}</div>
-          <div className="rail-note">{item.note}</div>
-        </button>
-      ))}
+      {NAV.map((item) => {
+        const active = activeNav === item.id
+        return (
+          <button
+            key={item.id}
+            className={`rail-item${active ? ' active' : ''}`}
+            // Already inside this group? Hold the current stage rather than
+            // snapping back to the first one.
+            onClick={() => !active && onNavigate(item.stages[0].id)}
+            aria-current={active ? 'page' : undefined}
+          >
+            <div className="rail-label">{item.label}</div>
+            <div className="rail-note">{item.note}</div>
+          </button>
+        )
+      })}
     </nav>
+  )
+}
+
+/**
+ * Stages of the active rail group. Renders nothing for single-screen groups,
+ * so Org Cards / Agents / Review look exactly as they did before.
+ */
+function StageBar({ view, onNavigate }: { view: ViewId; onNavigate: (v: ViewId) => void }) {
+  const nav = NAV.find((n) => n.id === SCREEN_TO_NAV[view])
+  if (!nav || nav.stages.length < 2) return null
+  return (
+    <div className="stage-bar" role="tablist" aria-label={`${nav.label} stages`}>
+      {nav.stages.map((s, i) => {
+        const active = view === s.id
+        return (
+          <button
+            key={s.id}
+            role="tab"
+            aria-selected={active}
+            className={`stage${active ? ' active' : ''}`}
+            onClick={() => onNavigate(s.id)}
+          >
+            {nav.flow ? <span className="stage-num">{String(i + 1).padStart(2, '0')}</span> : null}
+            {s.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
