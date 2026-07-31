@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AppShell } from './components/AppShell'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import type { ViewId } from './types'
 import { TodayView } from './screens/TodayView'
 import { SmartCalendar } from './screens/SmartCalendar'
@@ -22,7 +23,11 @@ export default function App() {
 
   return (
     <AppShell view={view} onNavigate={setView}>
-      {renderView(view, setView)}
+      {/* Keyed by view so navigating to any screen remounts the boundary and
+          clears a prior crash. The shell + nav live outside it and stay up. */}
+      <ErrorBoundary key={view} onReset={() => setView('today')}>
+        {renderView(view, setView)}
+      </ErrorBoundary>
     </AppShell>
   )
 }

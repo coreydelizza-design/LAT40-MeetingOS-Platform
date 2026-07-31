@@ -36,6 +36,7 @@ function HealthLabel({ state }: { state: HealthState }) {
 }
 
 export function WorkMap() {
+  throw new Error('TEMP boundary test: simulated WorkMap render crash')
   const [selectedId, setSelectedId] = useState('sc-sales-legal')
   const selected =
     SCORECARDS.find((s) => s.id === selectedId) ?? SCORECARDS[0]

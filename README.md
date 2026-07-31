@@ -122,3 +122,14 @@ MeetingOS is a static frontend. `vite build` emits `dist/`, which is served in p
 - Config is declared in `railway.json` (Nixpacks builder). `vite.config.ts` has **no `preview` block and no `allowedHosts`** — host-header validation is not bypassed anywhere.
 
 Railway builds from the connected GitHub repo. Push to the default branch and Railway will build and deploy automatically.
+
+## CI
+
+Every push and pull request to `main` runs `.github/workflows/ci.yml` on Node 20 as a pre-deploy gate:
+
+1. `npm ci` — clean, lockfile-exact install.
+2. `npm run typecheck` — `tsc --noEmit` (TypeScript strict).
+3. `npm run build` — `tsc && vite build` must produce `dist/`.
+4. `npm audit --audit-level=high` — fails the build on any high or critical advisory.
+
+Enable branch protection on `main` (require this check to pass before merge) so a red build cannot ship to Railway.

@@ -358,8 +358,15 @@ export interface AttendeeReceiptPreview {
   timestamp: string
 }
 
-/** Left-rail navigation identity for the internal view router. */
-export type ViewId =
+/**
+ * A rendered screen — the unit the internal view router switches on.
+ *
+ * Screens are NOT rail destinations. Several screens sit under one rail item as
+ * stages (see NAV in constants.ts); the rail highlights whichever group owns the
+ * current screen. Keeping these separate is what lets the rail collapse to six
+ * without touching a single screen or navigate() call.
+ */
+export type ScreenId =
   | 'today'
   | 'calendar'
   | 'build'
@@ -370,5 +377,11 @@ export type ViewId =
   | 'capture'
   | 'work-map'
   | 'review'
-  // Left-rail label is "Review Invite"; the page title remains "Attendee View".
+  // Stage label under Meeting is "Review Invite"; the page title remains "Attendee View".
   | 'attendee'
+
+/** Back-compat alias. Screens import this; no screen file needed changing. */
+export type ViewId = ScreenId
+
+/** A left-rail destination. Six, each owning one or more ScreenIds. */
+export type NavId = 'today' | 'meeting' | 'org-cards' | 'agents' | 'evidence' | 'review'
