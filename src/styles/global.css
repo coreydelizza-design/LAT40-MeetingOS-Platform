@@ -1102,3 +1102,13 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .sn-chip.fail { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .sn-check-table tr.row-fail td { background: var(--panel); }
+
+/* Gaps summary line */
+.sn-gap-summary {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  border-left: 2px solid var(--line-ink);
+  padding: 4px 0 4px 12px;
+  margin: 0 0 14px;
+}

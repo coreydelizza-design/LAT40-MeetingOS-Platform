@@ -13,6 +13,8 @@ import { WorkMap } from './screens/WorkMap'
 import { ExecutiveReview } from './screens/ExecutiveReview'
 import { SignalNoise } from './screens/SignalNoise'
 import { SignalNoiseChecks } from './screens/admin/SignalNoiseChecks'
+import { SignalNoiseMetrics } from './screens/admin/SignalNoiseMetrics'
+import { SignalNoiseGaps } from './screens/admin/SignalNoiseGaps'
 import { SignalNoiseData } from './screens/admin/SignalNoiseData'
 import { AttendeeView } from './screens/AttendeeView'
 import { MeetingCloseout } from './screens/MeetingCloseout'
@@ -64,6 +66,10 @@ function renderView(view: ViewId, navigate: (v: ViewId) => void) {
     // are dead-code-eliminated — the code never ships to users.
     case 'signal-noise':
       return __ADMIN_TOOLS__ ? <SignalNoise navigate={navigate} /> : <TodayView navigate={navigate} />
+    case 'sn-metrics':
+      return __ADMIN_TOOLS__ ? <SignalNoiseMetrics /> : <TodayView navigate={navigate} />
+    case 'sn-gaps':
+      return __ADMIN_TOOLS__ ? <SignalNoiseGaps /> : <TodayView navigate={navigate} />
     case 'sn-checks':
       return __ADMIN_TOOLS__ ? <SignalNoiseChecks /> : <TodayView navigate={navigate} />
     case 'sn-data':

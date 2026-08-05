@@ -6,12 +6,12 @@
   "description": "MeetingOS — an executive operating workspace that governs live time, structures decisions, deploys org-based agents, and maps how the organization actually works.",
   "scripts": {
     "dev": "vite",
-    "dev:admin": "node scripts/with-admin.mjs vite",
+    "dev:admin": "VITE_ADMIN_TOOLS=true vite",
     "build": "tsc && vite build",
-    "build:admin": "tsc && node scripts/with-admin.mjs vite build --outDir dist-admin",
+    "build:admin": "tsc && VITE_ADMIN_TOOLS=true vite build --outDir dist-admin",
     "preview": "vite preview",
     "start": "serve -s dist -l ${PORT:-4173}",
-    "start:admin": "serve -s dist-admin",
+    "start:admin": "serve -s dist-admin -l ${PORT:-4173}",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },

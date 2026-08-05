@@ -98,8 +98,10 @@ const ADMIN_NAV: NavItem = {
   note: 'Admin · data integrity',
   stages: [
     { id: 'signal-noise', label: 'View' },
+    { id: 'sn-metrics', label: 'Metrics' },
+    { id: 'sn-gaps', label: 'Gaps' },
     { id: 'sn-checks', label: 'Reconciliation' },
-    { id: 'sn-data', label: 'Raw data' },
+    { id: 'sn-data', label: 'Catalog' },
   ],
 }
 

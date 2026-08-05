@@ -377,9 +377,12 @@ export type ScreenId =
   | 'capture'
   | 'work-map'
   | 'review'
-  // Admin-only Signal & Noise module (compiled out of the public build).
-  // Three stages: the derived read, its reconciliation checks, and raw data.
+  // Admin-only data-integrity module (compiled out of the public build).
+  // Stages: the derived read, all metrics, reconciliation gaps, tie-out checks,
+  // and the full raw-data catalog.
   | 'signal-noise'
+  | 'sn-metrics'
+  | 'sn-gaps'
   | 'sn-checks'
   | 'sn-data'
   // Stage label under Meeting is "Review Invite"; the page title remains "Attendee View".

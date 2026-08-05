@@ -27,3 +27,70 @@ export function getSignalNoise(): SignalNoiseModel {
 export function getWeekCalls(): Call[] {
   return WEEK_CALLS
 }
+
+// ---------------------------------------------------------------------------
+// Extended read surface — every dataset the data-integrity module inspects.
+// Still the single seam: swap these bodies for API calls behind one edit.
+// ---------------------------------------------------------------------------
+import {
+  MEETINGS,
+  MEETING_CLOSEOUT,
+  ATTENDEE_OUTCOME_SIGNALS,
+  SCORECARDS,
+  CLAIMED_RELATIONSHIPS,
+  DECISIONS,
+  ACTIONS,
+  DEPENDENCIES,
+  RISKS,
+  AGENTS,
+  AGENT_AUTHORIZATIONS,
+  ORG_CARDS,
+  EVENT_RECEIPTS,
+  DECISION_VELOCITY,
+  ORG_FRICTION,
+  AGENT_LEVERAGE,
+  ORG_LOAD,
+  MEETING_DEBT,
+  PRE_MEETING_SCORES,
+  CLOSURE_SCORES,
+} from './mock'
+import type {
+  Meeting,
+  MeetingCloseout,
+  AttendeeOutcomeSignal,
+  RelationshipScorecard,
+  ClaimedRelationship,
+  Decision,
+  ActionItem,
+  Dependency,
+  Risk,
+  Agent,
+  AgentAuthorization,
+  OrgCard,
+  EventReceipt,
+} from '../types'
+
+export type LabelValue = { label: string; value: string }
+export type ScoreRow = { label: string; value: string; note: string }
+
+export const getMeetings = (): Meeting[] => MEETINGS
+export const getMeetingCloseout = (): MeetingCloseout => MEETING_CLOSEOUT
+export const getAttendeeSignals = (): AttendeeOutcomeSignal[] => ATTENDEE_OUTCOME_SIGNALS
+export const getScorecards = (): RelationshipScorecard[] => SCORECARDS
+export const getClaimedRelationships = (): ClaimedRelationship[] => CLAIMED_RELATIONSHIPS
+export const getDecisions = (): Decision[] => DECISIONS
+export const getActions = (): ActionItem[] => ACTIONS
+export const getDependencies = (): Dependency[] => DEPENDENCIES
+export const getRisks = (): Risk[] => RISKS
+export const getAgents = (): Agent[] => AGENTS
+export const getAgentAuthorizations = (): AgentAuthorization[] => AGENT_AUTHORIZATIONS
+export const getOrgCards = (): OrgCard[] => ORG_CARDS
+export const getEventReceipts = (): EventReceipt[] => EVENT_RECEIPTS
+
+export const getDecisionVelocity = (): LabelValue[] => DECISION_VELOCITY
+export const getOrgFriction = (): LabelValue[] => ORG_FRICTION
+export const getAgentLeverage = (): LabelValue[] => AGENT_LEVERAGE
+export const getOrgLoad = () => ORG_LOAD
+export const getMeetingDebt = (): string[] => MEETING_DEBT
+export const getPreMeetingScores = (): ScoreRow[] => PRE_MEETING_SCORES
+export const getClosureScores = (): ScoreRow[] => CLOSURE_SCORES
