@@ -10,6 +10,9 @@ dist-ssr/
 *.log
 npm-debug.log*
 
+# Patch files — generated locally to move changes into the repo; not source
+*.patch
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json
