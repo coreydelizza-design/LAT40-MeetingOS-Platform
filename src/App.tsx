@@ -11,6 +11,9 @@ import { Agents } from './screens/Agents'
 import { StructuredCapture } from './screens/StructuredCapture'
 import { WorkMap } from './screens/WorkMap'
 import { ExecutiveReview } from './screens/ExecutiveReview'
+import { SignalNoise } from './screens/SignalNoise'
+import { SignalNoiseChecks } from './screens/admin/SignalNoiseChecks'
+import { SignalNoiseData } from './screens/admin/SignalNoiseData'
 import { AttendeeView } from './screens/AttendeeView'
 import { MeetingCloseout } from './screens/MeetingCloseout'
 
@@ -56,6 +59,15 @@ function renderView(view: ViewId, navigate: (v: ViewId) => void) {
       return <WorkMap />
     case 'review':
       return <ExecutiveReview />
+    // Admin-only Signal & Noise module. The __ADMIN_TOOLS__ guard is a build-time
+    // literal, so in the public build these three branches (and their imports)
+    // are dead-code-eliminated — the code never ships to users.
+    case 'signal-noise':
+      return __ADMIN_TOOLS__ ? <SignalNoise navigate={navigate} /> : <TodayView navigate={navigate} />
+    case 'sn-checks':
+      return __ADMIN_TOOLS__ ? <SignalNoiseChecks /> : <TodayView navigate={navigate} />
+    case 'sn-data':
+      return __ADMIN_TOOLS__ ? <SignalNoiseData /> : <TodayView navigate={navigate} />
     default:
       return <TodayView navigate={navigate} />
   }

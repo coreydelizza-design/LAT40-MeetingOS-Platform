@@ -377,11 +377,26 @@ export type ScreenId =
   | 'capture'
   | 'work-map'
   | 'review'
+  // Admin-only Signal & Noise module (compiled out of the public build).
+  // Three stages: the derived read, its reconciliation checks, and raw data.
+  | 'signal-noise'
+  | 'sn-checks'
+  | 'sn-data'
   // Stage label under Meeting is "Review Invite"; the page title remains "Attendee View".
   | 'attendee'
 
 /** Back-compat alias. Screens import this; no screen file needed changing. */
 export type ViewId = ScreenId
 
-/** A left-rail destination. Six, each owning one or more ScreenIds. */
-export type NavId = 'today' | 'meeting' | 'org-cards' | 'agents' | 'evidence' | 'review'
+/**
+ * A left-rail destination. Six in the public build; the admin build adds a
+ * seventh, 'admin-sn', which is compiled out for users.
+ */
+export type NavId =
+  | 'today'
+  | 'meeting'
+  | 'org-cards'
+  | 'agents'
+  | 'evidence'
+  | 'review'
+  | 'admin-sn'

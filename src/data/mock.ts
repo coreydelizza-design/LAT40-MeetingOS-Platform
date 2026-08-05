@@ -1,5 +1,7 @@
 import type {
   Meeting,
+  MeetingState,
+  MeetingValue,
   MeetingContract,
   OrgCard,
   Agent,
@@ -7,6 +9,7 @@ import type {
   ActionItem,
   Dependency,
   Risk,
+  ScreenId,
 } from '../types'
 
 /**
@@ -2190,4 +2193,259 @@ export const DELEGATION_RECEIPTS: EventReceipt[] = [
     elapsedTime: '—',
     evidenceLabel: 'Delegation · Escalation',
   },
+]
+
+// ---------------------------------------------------------------------------
+// Signal & Noise — the derived read for the Executive Review stage.
+//
+// Ledger-derived, never judged. Signal is a live hour that produced a validated
+// outcome a receipt can point to (closeout.requiredOutputAchieved, a decision
+// closed with owner + rationale, an authorization granted). Noise is every other
+// live hour, decomposed into named classes, each routing to the lever that
+// reduces it.
+//
+// The two hard numbers are read straight out of LIVE_TIME_GOVERNANCE so this
+// screen and Executive Review can never disagree — that reconciliation was the
+// single biggest implementation risk.
+// ---------------------------------------------------------------------------
+
+const liveGovHrs = (label: string): number => {
+  const row = LIVE_TIME_GOVERNANCE.find((r) => r.label === label)
+  return row ? parseInt(row.value, 10) : 0
+}
+
+const SN_TOTAL_LIVE = liveGovHrs('Total live meeting hours') // 186
+const SN_RECOVERABLE = liveGovHrs('Recoverable time') //        52
+
+// Irreducible noise floor — legitimately unmeasurable live time (relationship
+// building, protected exploration, escalation that had to happen in a room).
+// Declared, not judged. Distinct from the 24 hrs of protected *focus* time in
+// LIVE_TIME_GOVERNANCE, which is non-meeting time outside the live-hours ledger.
+const SN_FLOOR = 18
+
+export interface NoiseClass {
+  id: string
+  label: string
+  hours: number
+  /** Differentiate by fill density, never hue — the monochrome lock. */
+  fill: 'dots' | 'hatch' | 'cross' | 'sparse' | 'outline'
+  measuredFrom: string
+  lever: string
+  routesTo: ScreenId
+}
+
+// Four classes are declared from their source metrics; the fifth (delegation
+// gap) takes the remainder so the classes always sum to the recoverable figure
+// Executive Review publishes — no drift, ever.
+const SN_DECLARED: Array<Omit<NoiseClass, 'hours'> & { hours: number }> = [
+  {
+    id: 'async',
+    label: 'Async-eligible',
+    hours: 16,
+    fill: 'dots',
+    measuredFrom: 'Meetings flagged ASYNC RECOMMENDED at intake, held live anyway.',
+    lever: 'Build Smart Meeting',
+    routesTo: 'build',
+  },
+  {
+    id: 'observer',
+    label: 'Observer burden',
+    hours: 14,
+    fill: 'hatch',
+    measuredFrom: 'Informed-Only & Optional-Reviewer seats × meeting duration.',
+    lever: 'Review Invite',
+    routesTo: 'attendee',
+  },
+  {
+    id: 'deferral',
+    label: 'Deferral',
+    hours: 9,
+    fill: 'cross',
+    measuredFrom: 'Decision deferral rate + decisions closed without an owner.',
+    lever: 'Decision Room',
+    routesTo: 'decision-room',
+  },
+  {
+    id: 'rework',
+    label: 'Rework',
+    hours: 7,
+    fill: 'sparse',
+    measuredFrom: 'Reopen rate, top repeat topics, false-closure risk.',
+    lever: 'Closeout',
+    routesTo: 'closeout',
+  },
+]
+
+const SN_CLASSES: NoiseClass[] = [
+  ...SN_DECLARED,
+  {
+    id: 'delegation',
+    label: 'Delegation gap',
+    // remainder → guarantees the five classes sum to recoverable hours
+    hours: SN_RECOVERABLE - SN_DECLARED.reduce((n, c) => n + c.hours, 0),
+    fill: 'outline',
+    measuredFrom: 'Agent-coverable hours − authorized agent coverage hours.',
+    lever: 'Agents',
+    routesTo: 'agents',
+  },
+]
+
+const SN_SIGNAL = SN_TOTAL_LIVE - SN_RECOVERABLE - SN_FLOOR // 186 − 52 − 18 = 116
+
+export interface SignalNoiseModel {
+  periodLabel: string
+  totalLiveHours: number
+  signalHours: number
+  recoverableHours: number
+  floorHours: number
+  noiseHours: number
+  /** Live hours spent per hour of validated outcome, e.g. 1.6. */
+  ratio: number
+  signalCeilingHours: number
+  classes: NoiseClass[]
+  quarters: {
+    id: string
+    label: string
+    signalHours: number
+    ratio: number
+    current?: boolean
+    interventionLabel: string
+    intervention: string
+  }[]
+  perOrg: {
+    org: string
+    liveHours: number
+    signalHours: number
+    noiseHours: number
+    ratio: number
+    observerBurden: string
+    worst?: boolean
+  }[]
+}
+
+// Per-org read from ORG_LOAD. Signal share is modulated by observer burden —
+// heavier observer load means fewer of an org's live hours reach a receipt.
+const SN_SHARE: Record<string, number> = { High: 0.48, Medium: 0.62, Low: 0.72 }
+const SN_PER_ORG = ORG_LOAD.map((o) => {
+  const live = parseInt(o.meetingHours, 10)
+  const signal = Math.round(live * (SN_SHARE[o.observerBurden] ?? 0.62))
+  return {
+    org: o.org,
+    liveHours: live,
+    signalHours: signal,
+    noiseHours: live - signal,
+    ratio: Math.round((live / signal) * 10) / 10,
+    observerBurden: o.observerBurden,
+  }
+})
+const SN_WORST = SN_PER_ORG.reduce((a, b) => (b.ratio > a.ratio ? b : a))
+
+export const SIGNAL_NOISE: SignalNoiseModel = {
+  periodLabel: 'This operating week · derived from receipts',
+  totalLiveHours: SN_TOTAL_LIVE,
+  signalHours: SN_SIGNAL,
+  recoverableHours: SN_RECOVERABLE,
+  floorHours: SN_FLOOR,
+  noiseHours: SN_TOTAL_LIVE - SN_SIGNAL,
+  ratio: Math.round((SN_TOTAL_LIVE / SN_SIGNAL) * 10) / 10,
+  signalCeilingHours: SN_TOTAL_LIVE - SN_FLOOR,
+  classes: SN_CLASSES,
+  // Ratio redrawn each quarter against a declared target — same mental model as
+  // Work Map's Quarterly Redraw. Interventions cite real REDRAW_MEASURED facts.
+  quarters: [
+    {
+      id: 'q2',
+      label: 'Q2 · prior',
+      signalHours: 98,
+      ratio: Math.round((SN_TOTAL_LIVE / 98) * 10) / 10,
+      interventionLabel: 'Baseline',
+      intervention: 'First full quarter instrumented from receipts.',
+    },
+    {
+      id: 'q3',
+      label: 'Q3 · current',
+      signalHours: SN_SIGNAL,
+      ratio: Math.round((SN_TOTAL_LIVE / SN_SIGNAL) * 10) / 10,
+      current: true,
+      interventionLabel: 'Intervention',
+      intervention:
+        'Pre-read requirement on Sales ↔ Legal — median resolution 11 → 6 days.',
+    },
+    {
+      id: 'q4',
+      label: 'Q4 · target',
+      signalHours: 132,
+      ratio: Math.round((SN_TOTAL_LIVE / 132) * 10) / 10,
+      interventionLabel: 'Committed lever',
+      intervention:
+        'Async routing of low-risk exceptions — live escalation 40% → 18%.',
+    },
+  ],
+  perOrg: SN_PER_ORG.map((o) => ({ ...o, worst: o.org === SN_WORST.org })),
+}
+
+// ---------------------------------------------------------------------------
+// Call Matrix — every call as a dot in the signal/noise 2×2.
+//
+// Axes are real Meeting fields, so a dot's position is ledger-derived:
+//   Y — outcome  = readinessScore (did the call produce / was it ready to
+//                  produce a validated outcome a receipt can point to)
+//   X — liveNeed = necessityScore (did it actually need to be live)
+//
+// Quadrants map straight onto the noise decomposition:
+//   top-right  Signal          · necessary live time that produced a receipt
+//   top-left   Async-eligible  · produced an outcome, didn't need to be live
+//   bottom-right At risk        · needed live, no receipt yet (deferral / rework)
+//   bottom-left Noise           · no receipt and didn't need to be live
+//
+// The four real MEETINGS (minus the focus block, which is not a call) seed the
+// set so it can never drift from the day's actual scores; the rest are the
+// week's other calls in the same realistic-scenario spirit as MEETINGS.
+// ---------------------------------------------------------------------------
+
+export interface Call {
+  id: string
+  title: string
+  kind: string
+  state: MeetingState
+  /** Outcome / readiness, 0–100 → vertical axis. */
+  outcome: number
+  /** Live necessity, 0–100 → horizontal axis. */
+  liveNeed: number
+  /** Attendee-hours — sizes the dot (what is at stake). */
+  hours: number
+  value: MeetingValue
+  org: string
+}
+
+const callFromMeeting = (m: Meeting): Call => ({
+  id: m.id,
+  title: m.title,
+  kind: m.meetingType,
+  state: m.state,
+  outcome: m.readinessScore,
+  liveNeed: m.necessityScore,
+  hours: parseInt(m.estimatedCost, 10) || 4,
+  value: m.meetingValue,
+  org: m.impactedOrgs[0] ?? 'Cross-org',
+})
+
+export const WEEK_CALLS: Call[] = [
+  ...MEETINGS.filter((m) => m.state !== 'FOCUS PROTECTED').map(callFromMeeting),
+  // Signal — necessary and productive
+  { id: 'call-board-prep', title: 'Board Prep Decision', kind: 'Decision', state: 'DECISION READY', outcome: 84, liveNeed: 74, hours: 6, value: 'High', org: 'Revenue Operations' },
+  { id: 'call-sec-incident', title: 'Security Incident Review', kind: 'Escalation', state: 'LIVE REQUIRED', outcome: 74, liveNeed: 90, hours: 5, value: 'Critical', org: 'Security' },
+  { id: 'call-contract-redline', title: 'Contract Redline Decision', kind: 'Decision', state: 'DECISION READY', outcome: 80, liveNeed: 66, hours: 4, value: 'High', org: 'Legal' },
+  // Async-eligible — productive but did not need to be live
+  { id: 'call-metrics-readout', title: 'Weekly Metrics Readout', kind: 'Status update', state: 'ASYNC RECOMMENDED', outcome: 70, liveNeed: 30, hours: 6, value: 'Low', org: 'Revenue Operations' },
+  { id: 'call-roadmap-fyi', title: 'Roadmap FYI Sync', kind: 'Status update', state: 'ASYNC RECOMMENDED', outcome: 62, liveNeed: 26, hours: 5, value: 'Low', org: 'Product' },
+  { id: 'call-portfolio-roundup', title: 'Portfolio Status Roundup', kind: 'Status update', state: 'ASYNC RECOMMENDED', outcome: 66, liveNeed: 34, hours: 7, value: 'Low', org: 'Revenue Operations' },
+  // At risk — needed to be live but produced no receipt yet
+  { id: 'call-margin-standoff', title: 'Margin Approval Standoff', kind: 'Decision', state: 'DECISION READY', outcome: 36, liveNeed: 85, hours: 8, value: 'High', org: 'Finance' },
+  { id: 'call-release-sla', title: 'Release Clearance SLA', kind: 'Cross-functional', state: 'LIVE REQUIRED', outcome: 44, liveNeed: 70, hours: 7, value: 'Medium', org: 'Product' },
+  { id: 'call-vendor-risk', title: 'Vendor Risk Escalation', kind: 'Escalation', state: 'LIVE REQUIRED', outcome: 46, liveNeed: 68, hours: 4, value: 'Medium', org: 'Legal' },
+  { id: 'call-budget-reforecast', title: 'Budget Reforecast Review', kind: 'Decision', state: 'DECISION READY', outcome: 48, liveNeed: 62, hours: 6, value: 'Medium', org: 'Finance' },
+  // Noise — no receipt and did not need to be live
+  { id: 'call-team-huddle', title: 'Standing Team Huddle', kind: 'Status update', state: 'ASYNC RECOMMENDED', outcome: 34, liveNeed: 24, hours: 4, value: 'Low', org: 'Customer Success' },
+  { id: 'call-info-share', title: 'Cross-team Info Share', kind: 'Status update', state: 'ASYNC RECOMMENDED', outcome: 30, liveNeed: 40, hours: 5, value: 'Low', org: 'Product' },
 ]

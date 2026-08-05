@@ -32,7 +32,10 @@ export interface NavItem {
  * and two are zoom levels on the same evidence. The rail names the destination,
  * the stage bar names the position within it.
  */
-export const NAV: NavItem[] = [
+/** True only in the admin build. Drives the admin-only rail destination. */
+export const ADMIN_TOOLS = __ADMIN_TOOLS__
+
+const BASE_NAV: NavItem[] = [
   {
     id: 'today',
     label: 'Today',
@@ -82,6 +85,26 @@ export const NAV: NavItem[] = [
     stages: [{ id: 'review', label: 'Review' }],
   },
 ]
+
+/**
+ * Admin-only Signal & Noise module. Present only in the admin build — the public
+ * build compiles this and its screens out of the bundle entirely. Three stages:
+ * the derived read, its reconciliation checks against the app's constants, and a
+ * raw-data inspector.
+ */
+const ADMIN_NAV: NavItem = {
+  id: 'admin-sn',
+  label: 'Signal & Noise',
+  note: 'Admin · data integrity',
+  stages: [
+    { id: 'signal-noise', label: 'View' },
+    { id: 'sn-checks', label: 'Reconciliation' },
+    { id: 'sn-data', label: 'Raw data' },
+  ],
+}
+
+/** The left rail. Six public destinations; the admin build appends a seventh. */
+export const NAV: NavItem[] = __ADMIN_TOOLS__ ? [...BASE_NAV, ADMIN_NAV] : BASE_NAV
 
 /** Which rail item owns a screen. Derived from NAV — never hand-maintained. */
 export const SCREEN_TO_NAV = Object.fromEntries(

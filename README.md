@@ -112,6 +112,28 @@ npx serve -s dist -l 4173  # serve the production build locally (same as prod)
 npm run typecheck          # type check only
 ```
 
+## Admin build — Signal & Noise data-integrity module
+
+Signal & Noise is an **admin-only** module (a rail destination with three stages:
+the derived **View**, its **Reconciliation** checks, and a **Raw data** inspector).
+It exists to test the app's derived numbers against the app's own source data.
+
+It is gated by a build-time flag, `__ADMIN_TOOLS__` (injected by Vite `define` from
+`VITE_ADMIN_TOOLS`), so there are two builds from one codebase:
+
+```bash
+npm run build         # public build → dist/  (module compiled OUT — users never receive the code)
+npm run build:admin   # admin build  → dist-admin/  (module included)
+npm run dev:admin     # local dev with the module on
+```
+
+The public bundle contains none of the module's code — the `__ADMIN_TOOLS__` guard
+dead-code-eliminates the screens and their imports. Deploy `dist-admin/` as a
+**separate, access-restricted service** (e.g. a second Railway service behind
+basic auth) so only administrators can reach it. The module reads the same
+in-memory data every screen uses, through the single seam in
+`src/data/adapters.ts` — swap that one file to a real API when a backend arrives.
+
 ## Railway deployment
 
 MeetingOS is a static frontend. `vite build` emits `dist/`, which is served in production by the `serve` package — a static file server, not a dev/preview server. No environment variables are required.
